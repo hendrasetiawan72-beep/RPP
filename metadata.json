@@ -1,0 +1,6 @@
+{
+  "name": "Generator ATP & Modul Ajar SMK Muhammadiyah Bawang",
+  "description": "Sistem otomatis perumus Alur Tujuan Pembelajaran (ATP) dan Modul Ajar Kurikulum Merdeka berbasis Deep Learning untuk SMK Muhammadiyah Bawang, Batang.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
