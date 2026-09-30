@@ -4,7 +4,7 @@ import {
   AlurTujuanPembelajaranItem,
   ModulAjarData,
 } from '../types';
-import { CheckCircle2, CheckSquare, Square, Printer, Info, Edit3, Code2, ExternalLink, Table, Sparkles } from 'lucide-react';
+import { CheckCircle2, CheckSquare, Square, Printer, Info, Edit3, Code2, ExternalLink, Table, Layers } from 'lucide-react';
 
 interface PrintableDocumentProps {
   identity: SchoolIdentity;
@@ -195,75 +195,84 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
           )}
         </div>
 
-        {/* Lampiran 1: LKPD / Studi Kasus */}
+        {/* Lampiran 1: Materi Pembelajaran (Diletakkan di atas LKPD sesuai instruksi) */}
         <div className="border border-black p-4 bg-white space-y-3 text-xs page-break-inside-avoid">
           <div className="border-b border-black pb-1.5 flex items-center justify-between">
             <div>
               <span className="text-[10px] font-mono text-neutral-500 font-bold">Lampiran 1</span>
               <h5 className="font-bold text-xs uppercase text-neutral-900">
-                {lampiran.lkpd.judul}
+                Materi Pembelajaran: {lampiran.bahanBacaan.judul}
               </h5>
             </div>
-            <span className="text-[10px] font-mono bg-neutral-100 px-2 py-0.5 rounded border border-black/40">
-              Job Sheet / Lembar Kerja
+            <span className="text-[10px] font-mono bg-blue-50 text-blue-900 px-2 py-0.5 rounded border border-blue-300">
+              Bahan Ajar & Media
             </span>
           </div>
 
-          <div className="space-y-1">
-            <p className="font-semibold text-neutral-800">Nama Anggota Kelompok:</p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-neutral-400 italic">
-              <div className="border-b border-dashed border-black/40 py-1">1. ................................</div>
-              <div className="border-b border-dashed border-black/40 py-1">2. ................................</div>
-              <div className="border-b border-dashed border-black/40 py-1">3. ................................</div>
-              <div className="border-b border-dashed border-black/40 py-1">4. ................................</div>
-            </div>
+          {/* Kolom Tautan Materi (Hiperlink yang aktif di PDF Siap Cetak) */}
+          <div className="p-3 bg-blue-50/70 border border-blue-300 rounded-lg space-y-1">
+            <span className="font-bold text-blue-950 text-xs flex items-center gap-1.5">
+              <span>🔗 Tautan Materi Pembelajaran (Klik untuk Membuka):</span>
+            </span>
+            {lampiran.bahanBacaan.tautan ? (
+              <a
+                href={lampiran.bahanBacaan.tautan}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-700 hover:text-blue-900 underline font-mono text-xs break-all font-semibold inline-flex items-center gap-1"
+              >
+                <span>{lampiran.bahanBacaan.tautan}</span>
+                <ExternalLink className="w-3 h-3 shrink-0" />
+              </a>
+            ) : (
+              <span className="text-neutral-500 italic text-[11px] block">
+                (Tautan materi pembelajaran belum diisi. Tambahkan tautan melalui Editor RPP)
+              </span>
+            )}
           </div>
 
-          <div className="border border-black p-2.5 bg-neutral-50/50">
-            <strong className="block mb-1 text-neutral-900">Instruksi & Rangkuman Analisis:</strong>
-            <p className="text-neutral-700 leading-relaxed mb-2">{lampiran.lkpd.rangkumanHasilDiskusi}</p>
-            <div className="border border-dashed border-neutral-300 p-4 bg-white min-h-20 text-neutral-400 italic text-center flex items-center justify-center">
-              (Ruang Catatan dan Jawaban Eksplorasi Siswa)
-            </div>
-          </div>
-
-          <div>
-            <p className="font-bold text-neutral-900 mb-1">Daftar Pertanyaan Diskusi Kelompok:</p>
-            <ol className="list-decimal pl-5 space-y-1 text-neutral-800">
-              {lampiran.lkpd.pertanyaanDiskusi.map((pd) => (
-                <li key={pd.no}>{pd.pertanyaan}</li>
-              ))}
-            </ol>
-          </div>
-
-          {/* Embed code rendering for LKPD */}
-          {renderEmbedBox(lampiran.lkpd.embedCode, 'LKPD Digital Interaktif')}
+          {/* Kolom Input Kode Script HTML / Embed Materi */}
+          {renderEmbedBox(lampiran.bahanBacaan.embedCode, 'Media & Materi Pembelajaran (Kode Script / Embed HTML)')}
         </div>
 
-        {/* Lampiran 2: Bahan Bacaan Guru dan Peserta Didik */}
+        {/* Lampiran 2: LKPD (Semua teks isi dihapus kecuali judul header, kolom tautan & embed) */}
         <div className="border border-black p-4 bg-white space-y-3 text-xs page-break-inside-avoid">
-          <div className="border-b border-black pb-1">
-            <span className="text-[10px] font-mono text-neutral-500 font-bold">Lampiran 2</span>
-            <h5 className="font-bold text-xs uppercase text-neutral-900">
-              Bahan Bacaan Guru dan Peserta Didik: {lampiran.bahanBacaan.judul}
-            </h5>
-          </div>
-          <p className="leading-relaxed text-justify">{lampiran.bahanBacaan.pengantarFungsi}</p>
-          <div className="p-2.5 bg-amber-50/70 border-l-4 border-amber-500">
-            <strong className="block text-amber-950 mb-0.5">Analogi & Konteks Nyata:</strong>
-            <p className="text-amber-900">{lampiran.bahanBacaan.analogiIlustrasi}</p>
-          </div>
-          <div>
-            <h6 className="font-bold text-neutral-900 mb-0.5">{lampiran.bahanBacaan.pembahasan1.judul}</h6>
-            <p className="leading-relaxed text-justify">{lampiran.bahanBacaan.pembahasan1.uraian}</p>
-          </div>
-          <div>
-            <h6 className="font-bold text-neutral-900 mb-0.5">{lampiran.bahanBacaan.pembahasan2.judul}</h6>
-            <p className="leading-relaxed text-justify">{lampiran.bahanBacaan.pembahasan2.uraian}</p>
+          <div className="border-b border-black pb-1.5 flex items-center justify-between">
+            <div>
+              <span className="text-[10px] font-mono text-neutral-500 font-bold">Lampiran 2</span>
+              <h5 className="font-bold text-xs uppercase text-neutral-900">
+                LKPD (Lembar Kerja Peserta Didik): {lampiran.lkpd.judul}
+              </h5>
+            </div>
+            <span className="text-[10px] font-mono bg-emerald-50 text-emerald-900 px-2 py-0.5 rounded border border-emerald-300">
+              Job Sheet / LKPD
+            </span>
           </div>
 
-          {/* Embed code rendering for Material / Reading */}
-          {renderEmbedBox(lampiran.bahanBacaan.embedCode, 'Media & Materi Pembelajaran')}
+          {/* Kolom Tautan LKPD (Hiperlink yang aktif di PDF Siap Cetak) */}
+          <div className="p-3 bg-emerald-50/70 border border-emerald-300 rounded-lg space-y-1">
+            <span className="font-bold text-emerald-950 text-xs flex items-center gap-1.5">
+              <span>🔗 Tautan LKPD Digital (Klik untuk Membuka):</span>
+            </span>
+            {lampiran.lkpd.tautan ? (
+              <a
+                href={lampiran.lkpd.tautan}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-emerald-700 hover:text-emerald-900 underline font-mono text-xs break-all font-semibold inline-flex items-center gap-1"
+              >
+                <span>{lampiran.lkpd.tautan}</span>
+                <ExternalLink className="w-3 h-3 shrink-0" />
+              </a>
+            ) : (
+              <span className="text-neutral-500 italic text-[11px] block">
+                (Tautan LKPD belum diisi. Tambahkan tautan melalui Editor RPP)
+              </span>
+            )}
+          </div>
+
+          {/* Dibawahnya Kolom Kode Embed LKPD */}
+          {renderEmbedBox(lampiran.lkpd.embedCode, 'LKPD Digital Interaktif (Embed HTML)')}
         </div>
 
         {/* Lampiran 3: Rubrik Observasi Formatif */}
@@ -392,7 +401,7 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                 onClick={() => onOpenRppEditor('sintaks')}
                 className="neo-btn px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-black text-xs font-black rounded-lg border border-black flex items-center gap-1 shadow-[1px_1px_0px_#000]"
               >
-                <Sparkles className="w-3.5 h-3.5" />
+                <Layers className="w-3.5 h-3.5" />
                 <span>Opsi Sintaks PjBL/PBL</span>
               </button>
               <button

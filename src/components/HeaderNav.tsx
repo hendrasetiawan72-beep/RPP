@@ -1,5 +1,4 @@
-import React from 'react';
-import { Printer, Download, FileSpreadsheet, Sparkles, BookOpen, Settings, School, FileText, Table } from 'lucide-react';
+import { Printer, Download, FileSpreadsheet, Wand2, BookOpen, Settings, School, FileText, Table } from 'lucide-react';
 import { SchoolIdentity } from '../types';
 
 interface HeaderNavProps {
@@ -156,7 +155,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             className="neo-btn px-3 py-1.5 bg-rose-200 hover:bg-rose-300 text-black rounded-lg text-xs font-bold flex items-center gap-1.5"
             title="Kustomisasi & Perkaya dengan AI"
           >
-            <Sparkles className="w-3.5 h-3.5 text-rose-700" />
+            <Wand2 className="w-3.5 h-3.5 text-rose-700" />
             <span>AI Refiner</span>
           </button>
 

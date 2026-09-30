@@ -5,7 +5,7 @@ import {
   Check,
   Code2,
   Table,
-  Sparkles,
+  Layers,
   Info,
 } from 'lucide-react';
 import { ModulAjarData, SchoolIdentity } from '../types';
@@ -397,7 +397,7 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
               <div className="border-2 border-black rounded-xl p-4 bg-amber-50/70 shadow-[3px_3px_0px_#000]">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-amber-700" />
+                    <Layers className="w-5 h-5 text-amber-700" />
                     <h4 className="font-display font-black text-sm uppercase text-neutral-900">
                       ⚡ Pilih Opsi Sintaks Pembelajaran Deep Learning (1-Klik Terapkan)
                     </h4>
@@ -699,18 +699,75 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
                 </div>
               </div>
 
-              {/* Lampiran 1: LKPD & Kode Embed */}
+              {/* Lampiran 1: Materi Pembelajaran (Diatas LKPD) */}
               <div className="border-2 border-black rounded-xl overflow-hidden bg-white shadow-[3px_3px_0px_#000]">
                 <div className="bg-neutral-100 p-2.5 border-b border-black font-black text-xs uppercase flex items-center justify-between">
-                  <span>Lampiran 1: LKPD (Lembar Kerja Peserta Didik)</span>
-                  <span className="text-[10px] font-mono text-emerald-800 font-bold bg-emerald-100 px-2 py-0.5 rounded">
-                    Mendukung Kode Embed
+                  <span>Lampiran 1: Materi Pembelajaran</span>
+                  <span className="text-[10px] font-mono text-blue-800 font-bold bg-blue-100 px-2 py-0.5 rounded">
+                    Tautan Hiperlink & Script HTML
                   </span>
                 </div>
                 <div className="p-4 space-y-4">
+                  <div>
+                    <label className="text-xs font-bold text-neutral-800 block mb-1">Judul Materi Pembelajaran</label>
+                    <input
+                      type="text"
+                      value={lampiran.bahanBacaan.judul}
+                      onChange={(e) => updateField('rppFormat.lampiran.bahanBacaan.judul', e.target.value)}
+                      className="w-full px-3 py-2 border border-black rounded-lg text-xs bg-white font-bold"
+                    />
+                  </div>
+
+                  {/* Kolom Tautan Materi (Bisa Jadi Hiperlink di PDF Siap Cetak) */}
+                  <div className="p-3 bg-blue-50/80 border border-blue-300 rounded-xl space-y-1">
+                    <label className="text-xs font-black text-blue-950 flex items-center gap-1.5">
+                      <span>🔗 Kolom Tautan Materi Pembelajaran (Hiperlink Aktif):</span>
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="Contoh: https://guru.kemdikbud.go.id/ atau https://drive.google.com/..."
+                      value={lampiran.bahanBacaan.tautan || ''}
+                      onChange={(e) => updateField('rppFormat.lampiran.bahanBacaan.tautan', e.target.value)}
+                      className="w-full px-3 py-2 border border-black rounded-lg text-xs bg-white font-mono"
+                    />
+                    <p className="text-[10px] text-neutral-600">
+                      Tautan ini dapat langsung diklik (hyperlink aktif) pada dokumen web pratinjau maupun hasil cetak dokumen PDF.
+                    </p>
+                  </div>
+
+                  {/* Kolom Input Kode Script HTML / Embed Materi */}
+                  <div className="p-3 bg-amber-50/80 border-2 border-dashed border-amber-400 rounded-xl space-y-1.5">
+                    <label className="text-xs font-black text-neutral-900 flex items-center gap-1.5">
+                      <Code2 className="w-4 h-4 text-blue-800" />
+                      <span>Kolom Input Kode Script HTML / Embed Materi (YouTube, Google Slides, Flipbook)</span>
+                    </label>
+                    <textarea
+                      rows={3}
+                      placeholder='Contoh: <iframe width="100%" height="380" src="https://www.youtube.com/embed/..." allowfullscreen></iframe>'
+                      value={lampiran.bahanBacaan.embedCode || ''}
+                      onChange={(e) => updateField('rppFormat.lampiran.bahanBacaan.embedCode', e.target.value)}
+                      className="w-full px-3 py-2 border border-black rounded-lg text-xs bg-white font-mono leading-relaxed"
+                    />
+                    <p className="text-[10px] text-neutral-600">
+                      Mendukung tag iframe, embed code, atau script HTML multimedia yang disematkan langsung di lembar materi.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Lampiran 2: LKPD (Semua teks isi dihapus kecuali judul headernya, kolom tautan & kode embed) */}
+              <div className="border-2 border-black rounded-xl overflow-hidden bg-white shadow-[3px_3px_0px_#000]">
+                <div className="bg-neutral-100 p-2.5 border-b border-black font-black text-xs uppercase flex items-center justify-between">
+                  <span>Lampiran 2: LKPD (Lembar Kerja Peserta Didik)</span>
+                  <span className="text-[10px] font-mono text-emerald-800 font-bold bg-emerald-100 px-2 py-0.5 rounded">
+                    Judul Header & Tautan + Embed
+                  </span>
+                </div>
+                <div className="p-4 space-y-4">
+                  {/* Judul Header LKPD (Satu-satunya teks LKPD yang dipertahankan sesuai instruksi) */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-bold text-neutral-800 block mb-1">Judul LKPD</label>
+                      <label className="text-xs font-bold text-neutral-800 block mb-1">Judul Header LKPD</label>
                       <input
                         type="text"
                         value={lampiran.lkpd.judul}
@@ -719,35 +776,38 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-neutral-800 block mb-1">Nomor Lampiran</label>
+                      <label className="text-xs font-bold text-neutral-800 block mb-1">Nomor / Kode Lampiran</label>
                       <input
                         type="text"
-                        value={lampiran.lkpd.nomor || 'Lampiran 1'}
+                        value={lampiran.lkpd.nomor || 'Lampiran 2'}
                         onChange={(e) => updateField('rppFormat.lampiran.lkpd.nomor', e.target.value)}
                         className="w-full px-3 py-2 border border-black rounded-lg text-xs bg-white font-mono"
                       />
                     </div>
                   </div>
 
-                  <div>
-                    <label className="text-xs font-bold text-neutral-800 block mb-1">
-                      Instruksi & Rangkuman Analisis LKPD
+                  {/* Kolom Tautan LKPD (Hiperlink di PDF Siap Cetak) */}
+                  <div className="p-3 bg-emerald-50/80 border border-emerald-300 rounded-xl space-y-1">
+                    <label className="text-xs font-black text-emerald-950 flex items-center gap-1.5">
+                      <span>🔗 Kolom Tautan LKPD (Dapat Dibuka Melalui Hiperlink di PDF Siap Cetak):</span>
                     </label>
-                    <textarea
-                      rows={2}
-                      value={lampiran.lkpd.rangkumanHasilDiskusi}
-                      onChange={(e) =>
-                        updateField('rppFormat.lampiran.lkpd.rangkumanHasilDiskusi', e.target.value)
-                      }
-                      className="w-full px-3 py-2 border border-black rounded-lg text-xs bg-white leading-relaxed"
+                    <input
+                      type="url"
+                      placeholder="Contoh: https://docs.google.com/document/d/... atau https://liveworksheets.com/..."
+                      value={lampiran.lkpd.tautan || ''}
+                      onChange={(e) => updateField('rppFormat.lampiran.lkpd.tautan', e.target.value)}
+                      className="w-full px-3 py-2 border border-black rounded-lg text-xs bg-white font-mono"
                     />
+                    <p className="text-[10px] text-neutral-600">
+                      Tautan LKPD yang aktif dan dapat dibuka langsung melalui klik link di PDF siap cetak.
+                    </p>
                   </div>
 
-                  {/* Input Kode Embed LKPD */}
+                  {/* Dibawahnya: Kolom Kode Embed LKPD */}
                   <div className="p-3 bg-amber-50/80 border-2 border-dashed border-amber-400 rounded-xl space-y-1.5">
                     <label className="text-xs font-black text-amber-950 flex items-center gap-1.5">
                       <Code2 className="w-4 h-4 text-amber-800" />
-                      <span>Kode Embed LKPD (HTML &lt;iframe&gt; atau URL Canva / Google Docs / Liveworksheets)</span>
+                      <span>Kolom Kode Embed LKPD (HTML &lt;iframe&gt; / Liveworksheets / Google Docs)</span>
                     </label>
                     <textarea
                       rows={3}
@@ -757,69 +817,8 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
                       className="w-full px-3 py-2 border border-black rounded-lg text-xs bg-white font-mono leading-relaxed"
                     />
                     <p className="text-[10px] text-neutral-600">
-                      Masukkan tag iframe lengkap atau URL langsung. Jika diisi, pratinjau dokumen digital interaktif akan disematkan di lembar Lampiran 1.
+                      Pratinjau interaktif LKPD akan disematkan tepat di bawah kolom tautan pada dokumen lampiran.
                     </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Lampiran 2: Bahan Bacaan / Materi & Kode Embed */}
-              <div className="border-2 border-black rounded-xl overflow-hidden bg-white shadow-[3px_3px_0px_#000]">
-                <div className="bg-neutral-100 p-2.5 border-b border-black font-black text-xs uppercase flex items-center justify-between">
-                  <span>Lampiran 2: Bahan Bacaan Guru & Murid (Materi)</span>
-                  <span className="text-[10px] font-mono text-blue-800 font-bold bg-blue-100 px-2 py-0.5 rounded">
-                    Mendukung Kode Embed
-                  </span>
-                </div>
-                <div className="p-4 space-y-4">
-                  <div>
-                    <label className="text-xs font-bold text-neutral-800 block mb-1">Judul Bahan Bacaan</label>
-                    <input
-                      type="text"
-                      value={lampiran.bahanBacaan.judul}
-                      onChange={(e) => updateField('rppFormat.lampiran.bahanBacaan.judul', e.target.value)}
-                      className="w-full px-3 py-2 border border-black rounded-lg text-xs bg-white font-bold"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-bold text-neutral-800 block mb-1">Pengantar Konsep</label>
-                      <textarea
-                        rows={2}
-                        value={lampiran.bahanBacaan.pengantarFungsi}
-                        onChange={(e) =>
-                          updateField('rppFormat.lampiran.bahanBacaan.pengantarFungsi', e.target.value)
-                        }
-                        className="w-full px-3 py-2 border border-black rounded-lg text-xs bg-white leading-relaxed"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold text-neutral-800 block mb-1">Analogi & Kasus Nyata</label>
-                      <textarea
-                        rows={2}
-                        value={lampiran.bahanBacaan.analogiIlustrasi}
-                        onChange={(e) =>
-                          updateField('rppFormat.lampiran.bahanBacaan.analogiIlustrasi', e.target.value)
-                        }
-                        className="w-full px-3 py-2 border border-black rounded-lg text-xs bg-white leading-relaxed"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Input Kode Embed Materi */}
-                  <div className="p-3 bg-blue-50/80 border-2 border-dashed border-blue-400 rounded-xl space-y-1.5">
-                    <label className="text-xs font-black text-blue-950 flex items-center gap-1.5">
-                      <Code2 className="w-4 h-4 text-blue-800" />
-                      <span>Kode Embed Materi (HTML &lt;iframe&gt; Video YouTube / Google Slides / Flipbook)</span>
-                    </label>
-                    <textarea
-                      rows={3}
-                      placeholder='Contoh: <iframe width="100%" height="400" src="https://www.youtube.com/embed/..." allowfullscreen></iframe>'
-                      value={lampiran.bahanBacaan.embedCode || ''}
-                      onChange={(e) => updateField('rppFormat.lampiran.bahanBacaan.embedCode', e.target.value)}
-                      className="w-full px-3 py-2 border border-black rounded-lg text-xs bg-white font-mono leading-relaxed"
-                    />
                   </div>
                 </div>
               </div>
@@ -827,7 +826,7 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
               {/* Lampiran 3: Rubrik Observasi & Kode Embed */}
               <div className="border-2 border-black rounded-xl overflow-hidden bg-white shadow-[3px_3px_0px_#000]">
                 <div className="bg-neutral-100 p-2.5 border-b border-black font-black text-xs uppercase flex items-center justify-between">
-                  <span>Lampiran 3: Rubrik Observasi Aktivitas Kelompok</span>
+                  <span>Lampiran 3: Rubrik Observasi Aktivitas Kelompok & Kuis</span>
                   <span className="text-[10px] font-mono text-purple-800 font-bold bg-purple-100 px-2 py-0.5 rounded">
                     Mendukung Kode Embed
                   </span>

@@ -323,19 +323,21 @@ export interface ModulAjarData {
       lkpd: {
         nomor: string;
         judul: string;
-        rangkumanHasilDiskusi: string;
-        pertanyaanDiskusi: { no: number; pertanyaan: string }[];
-        soalAnalisisKontekstual: string[];
+        tautan?: string;
         embedCode?: string;
+        rangkumanHasilDiskusi?: string;
+        pertanyaanDiskusi?: { no: number; pertanyaan: string }[];
+        soalAnalisisKontekstual?: string[];
       };
       bahanBacaan: {
         judul: string;
-        pengantarFungsi: string;
-        analogiIlustrasi: string;
-        pembahasan1: { judul: string; uraian: string };
-        pembahasan2: { judul: string; uraian: string };
-        pertanyaanUji: string[];
+        tautan?: string;
         embedCode?: string;
+        pengantarFungsi?: string;
+        analogiIlustrasi?: string;
+        pembahasan1?: { judul: string; uraian: string };
+        pembahasan2?: { judul: string; uraian: string };
+        pertanyaanUji?: string[];
       };
       rubrikObservasiKelompok: {
         no: number;

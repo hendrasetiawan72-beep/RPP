@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, FileText, Layers, Eye, BookOpen, ChevronRight, HelpCircle, X, Sparkles, Code2, Edit3 } from 'lucide-react';
+import { Table, FileText, Layers, Eye, BookOpen, ChevronRight, HelpCircle, X, Code2, Edit3 } from 'lucide-react';
 import { ModulAjarData } from '../types';
 
 interface DocumentTabsProps {
@@ -99,7 +99,7 @@ export const DocumentTabs: React.FC<DocumentTabsProps> = ({
               onClick={() => onOpenRppEditor('sintaks')}
               className="neo-btn px-3 py-1 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 text-black text-xs font-black rounded-lg border-2 border-black flex items-center gap-1 shadow-[2px_2px_0px_#000]"
             >
-              <Sparkles className="w-3.5 h-3.5 text-black" />
+              <Layers className="w-3.5 h-3.5 text-black" />
               <span>✏️ Editor Tabel & Sintaks</span>
             </button>
           )}
