@@ -1377,12 +1377,6 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
             {modulAjarList.map((modul, idx) => renderRppDeepLearning(modul, idx, true))}
           </section>
         )}
-
-        {/* Kredensial Footer Dokumen Resmi */}
-        <div className="pt-4 border-t border-neutral-300 flex flex-col sm:flex-row items-center justify-between text-[10px] text-neutral-500 font-mono print:text-[9px]">
-          <span>SMK Muhammadiyah Bawang, Batang · Perangkat Ajar Kurikulum Merdeka & Deep Learning</span>
-          <span className="font-bold text-neutral-800">Copyright developed by @hndx07</span>
-        </div>
       </div>
     </div>
   );

@@ -366,7 +366,7 @@ export default function App() {
           </div>
 
           <div className="text-xs font-black text-neutral-900 bg-amber-200 border-2 border-black px-3.5 py-1 rounded-lg shadow-[2px_2px_0px_#000]">
-            Copyright developed by @hndx07
+            developed by @hndx07
           </div>
 
           <div className="text-[11px] text-neutral-500 font-medium">

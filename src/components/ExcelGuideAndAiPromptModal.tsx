@@ -766,7 +766,7 @@ Berikan dalam bentuk tabel Markdown terstruktur persis 1 tabel lengkap (3-4 bari
           <div className="text-[11px] font-mono text-neutral-600 flex items-center gap-1.5">
             <span className="font-bold text-neutral-800">SMK Muhammadiyah Bawang, Batang</span>
             <span>·</span>
-            <span>Copyright developed by @hndx07</span>
+            <span>developed by @hndx07</span>
           </div>
 
           <button
