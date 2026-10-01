@@ -230,7 +230,7 @@ export function generatePerangkatAjarFromRpp(
 
     // 1. Build ATP Item synchronized with this RPP row
     const tpFormatted = row.tujuanPembelajaran
-      ? row.tujuanPembelajaran.replace(/\n/g, ' ')
+      ? row.tujuanPembelajaran.trim()
       : `Peserta didik mampu menganalisis, mempraktikkan, dan memecahkan permasalahan pada materi ${materi} dengan bernalar kritis dan mandiri.`;
 
     const alurFormatted = row.alurPembelajaran ||
@@ -277,7 +277,10 @@ export function generatePerangkatAjarFromRpp(
     });
 
     const parsedTpList = row.tujuanPembelajaran
-      ? row.tujuanPembelajaran.split(/\n|;/).map((s) => s.trim()).filter(Boolean)
+      ? row.tujuanPembelajaran
+          .split(/\n|;/)
+          .map((s) => s.replace(/^\s*(?:\d+[\.\)]|[a-zA-Z][\.\)]|[-•*])\s*/, '').trim())
+          .filter(Boolean)
       : [
           `Memahami prinsip kerja, konsep fundamental, dan batasan operasional ${materi}.`,
           `Menganalisis, merancang, dan menguji pemecahan masalah ${materi} secara presisi sesuai standar SOP.`,

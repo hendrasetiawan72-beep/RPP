@@ -5,6 +5,7 @@ import {
   ModulAjarData,
 } from '../types';
 import { CheckCircle2, CheckSquare, Square, Printer, Info, Edit3, Code2, ExternalLink, Table, Layers } from 'lucide-react';
+import { ReadableColumnPoints } from './ReadableColumnPoints';
 
 interface PrintableDocumentProps {
   identity: SchoolIdentity;
@@ -550,11 +551,12 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                     <td className="p-2.5 text-neutral-800 space-y-2">
                       <p>{ident.karakteristikMateri.deskripsiMateri}</p>
                       <p className="font-semibold text-neutral-900">Karakteristik materi adalah sebagai berikut:</p>
-                      <ul className="list-disc pl-5 space-y-0.5">
-                        {ident.karakteristikMateri.poinKarakteristik.map((pt, i) => (
-                          <li key={i}>{pt}</li>
-                        ))}
-                      </ul>
+                      <ReadableColumnPoints
+                        content={ident.karakteristikMateri.poinKarakteristik}
+                        badgeColor="neutral"
+                        badgeStyle="number"
+                        className="space-y-1"
+                      />
                       <div className="pt-1.5 border-t border-neutral-200 space-y-1">
                         <div className="grid grid-cols-[230px_16px_1fr] items-start">
                           <span className="font-bold text-neutral-800">Bersifat Konseptual & Aplikatif</span>
@@ -643,12 +645,13 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                       c. Tujuan Pembelajaran
                     </td>
                     <td className="p-2.5 text-neutral-800">
-                      <p className="font-semibold mb-1">Peserta didik mampu:</p>
-                      <ol className="list-decimal pl-5 space-y-0.5">
-                        {desain.tujuanPembelajaran.map((tp, i) => (
-                          <li key={i}>{tp}</li>
-                        ))}
-                      </ol>
+                      <p className="font-semibold mb-1.5 text-neutral-900">Peserta didik mampu:</p>
+                      <ReadableColumnPoints
+                        content={desain.tujuanPembelajaran}
+                        badgeColor="amber"
+                        badgeStyle="number"
+                        className="space-y-1.5"
+                      />
                     </td>
                   </tr>
                   <tr className="border-b border-black">
@@ -656,11 +659,12 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                       d. Topik Pembelajaran Kontekstual
                     </td>
                     <td className="p-2.5 text-neutral-800">
-                      <ol className="list-decimal pl-5 space-y-0.5">
-                        {desain.topikKontekstual.map((topik, i) => (
-                          <li key={i}>{topik}</li>
-                        ))}
-                      </ol>
+                      <ReadableColumnPoints
+                        content={desain.topikKontekstual}
+                        badgeColor="blue"
+                        badgeStyle="number"
+                        className="space-y-1"
+                      />
                     </td>
                   </tr>
                   <tr className="border-b border-black">
@@ -678,19 +682,31 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                     <td className="w-56 p-2.5 font-bold align-top bg-neutral-50/70 border-r border-black">
                       2) Kemitraan Pembelajaran
                     </td>
-                    <td className="p-2.5 text-neutral-800 space-y-2">
-                      <div>
-                        <strong>1. Mitra Dunia Kerja / Industri ({desain.kerangkaPembelajaran.kemitraanPembelajaran.mitraIndustri.nama})</strong>
-                        <ul className="list-disc pl-5 mt-0.5 space-y-0.5">
+                    <td className="p-2.5 text-neutral-800 space-y-2.5">
+                      <div className="bg-neutral-50/60 p-2 rounded-lg border border-neutral-200">
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <span className="inline-flex items-center justify-center font-mono font-bold text-[10px] min-w-[18px] h-[18px] rounded bg-purple-100 text-purple-950 border border-purple-300 print:border-black print:bg-neutral-100 print:text-black">
+                            1
+                          </span>
+                          <strong className="text-neutral-900">
+                            Mitra Dunia Kerja / Industri ({desain.kerangkaPembelajaran.kemitraanPembelajaran.mitraIndustri.nama})
+                          </strong>
+                        </div>
+                        <ul className="list-disc pl-6 space-y-0.5 text-xs text-neutral-800">
                           {desain.kerangkaPembelajaran.kemitraanPembelajaran.mitraIndustri.peran.map((pr, i) => (
                             <li key={i}>{pr}</li>
                           ))}
                           <li><strong>Terkait PBL:</strong> {desain.kerangkaPembelajaran.kemitraanPembelajaran.mitraIndustri.terkaitPbl}</li>
                         </ul>
                       </div>
-                      <div>
-                        <strong>2. Orang Tua / Wali Murid</strong>
-                        <ul className="list-disc pl-5 mt-0.5 space-y-0.5">
+                      <div className="bg-neutral-50/60 p-2 rounded-lg border border-neutral-200">
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <span className="inline-flex items-center justify-center font-mono font-bold text-[10px] min-w-[18px] h-[18px] rounded bg-purple-100 text-purple-950 border border-purple-300 print:border-black print:bg-neutral-100 print:text-black">
+                            2
+                          </span>
+                          <strong className="text-neutral-900">Orang Tua / Wali Murid</strong>
+                        </div>
+                        <ul className="list-disc pl-6 space-y-0.5 text-xs text-neutral-800">
                           {desain.kerangkaPembelajaran.kemitraanPembelajaran.orangTuaWali.peran.map((pr, i) => (
                             <li key={i}>{pr}</li>
                           ))}
@@ -744,11 +760,12 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                       4) Pemanfaatan Digital
                     </td>
                     <td className="p-2.5 text-neutral-800">
-                      <ul className="list-disc pl-5 space-y-0.5">
-                        {desain.kerangkaPembelajaran.pemanfaatanDigital.map((item, i) => (
-                          <li key={i}>{item}</li>
-                        ))}
-                      </ul>
+                      <ReadableColumnPoints
+                        content={desain.kerangkaPembelajaran.pemanfaatanDigital}
+                        badgeColor="blue"
+                        badgeStyle="bullet"
+                        className="space-y-1"
+                      />
                     </td>
                   </tr>
                 </tbody>
@@ -810,8 +827,12 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                             <tbody className="divide-y divide-neutral-200">
                               {langkah.kegiatanInti.memahamiBermaknaMenggembirakan.tabelEksplorasi.data.map(([c1, c2], rIdx) => (
                                 <tr key={rIdx}>
-                                  <td className="p-1 border-r border-neutral-300 font-mono">{c1}</td>
-                                  <td className="p-1 font-mono">{c2}</td>
+                                  <td className="p-1.5 border-r border-neutral-300 font-mono text-left">
+                                    <ReadableColumnPoints content={c1} badgeColor="amber" />
+                                  </td>
+                                  <td className="p-1.5 font-mono text-left">
+                                    <ReadableColumnPoints content={c2} badgeColor="emerald" />
+                                  </td>
                                 </tr>
                               ))}
                             </tbody>
@@ -822,11 +843,14 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                       <p className="font-semibold text-neutral-900 mt-2">
                         Setelah diskusi kelompok dan kelas, guru menyimpulkan hasil temuan:
                       </p>
-                      <ul className="list-disc pl-5 space-y-0.5 mt-1">
-                        {langkah.kegiatanInti.memahamiBermaknaMenggembirakan.rangkumanTemuan.map((t, i) => (
-                          <li key={i}>{t}</li>
-                        ))}
-                      </ul>
+                      <div className="mt-1">
+                        <ReadableColumnPoints
+                          content={langkah.kegiatanInti.memahamiBermaknaMenggembirakan.rangkumanTemuan}
+                          badgeColor="amber"
+                          badgeStyle="number"
+                          className="space-y-1"
+                        />
+                      </div>
                     </div>
 
                     <div className="pt-2 border-t border-neutral-200">
@@ -843,14 +867,29 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                   </td>
                   <td className="p-2.5 text-neutral-800 space-y-2">
                     <div>
-                      <p className="font-semibold text-neutral-900">
+                      <p className="font-semibold text-neutral-900 mb-1">
                         • Refleksi individu (Teknik Kaizen 3-2-1):
                       </p>
-                      <ul className="list-disc pl-6 space-y-0.5 mt-0.5">
-                        <li>{langkah.kegiatanPenutup.refleksiIndividu321.tigaHalPenting}</li>
-                        <li>{langkah.kegiatanPenutup.refleksiIndividu321.duaPertanyaan}</li>
-                        <li>{langkah.kegiatanPenutup.refleksiIndividu321.satuHalMenarik}</li>
-                      </ul>
+                      <div className="space-y-1.5 pl-2 text-xs">
+                        <div className="flex items-start gap-2">
+                          <span className="inline-flex items-center justify-center font-mono font-bold text-[10px] min-w-[20px] h-[18px] px-1 rounded bg-purple-100 text-purple-950 border border-purple-300 shrink-0 mt-[1px] select-none print:border-black print:bg-neutral-100 print:text-black">
+                            3
+                          </span>
+                          <span className="flex-1">{langkah.kegiatanPenutup.refleksiIndividu321.tigaHalPenting}</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="inline-flex items-center justify-center font-mono font-bold text-[10px] min-w-[20px] h-[18px] px-1 rounded bg-purple-100 text-purple-950 border border-purple-300 shrink-0 mt-[1px] select-none print:border-black print:bg-neutral-100 print:text-black">
+                            2
+                          </span>
+                          <span className="flex-1">{langkah.kegiatanPenutup.refleksiIndividu321.duaPertanyaan}</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="inline-flex items-center justify-center font-mono font-bold text-[10px] min-w-[20px] h-[18px] px-1 rounded bg-purple-100 text-purple-950 border border-purple-300 shrink-0 mt-[1px] select-none print:border-black print:bg-neutral-100 print:text-black">
+                            1
+                          </span>
+                          <span className="flex-1">{langkah.kegiatanPenutup.refleksiIndividu321.satuHalMenarik}</span>
+                        </div>
+                      </div>
                     </div>
                     <div className="grid grid-cols-[190px_16px_1fr] items-start pt-1">
                       <span className="font-semibold text-neutral-800">• Kesimpulan dan Penguatan</span>
@@ -938,20 +977,35 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
           <div className="space-y-1.5 text-xs">
             <h5 className="font-bold text-xs text-neutral-900">b. Asesmen Proses (Formatif)</h5>
             <div className="border border-black overflow-hidden bg-white p-2.5 divide-y divide-neutral-200">
-              <div className="grid grid-cols-[130px_16px_1fr] items-start py-1">
-                <span className="font-bold text-neutral-800">1. Diskusi</span>
-                <span className="font-bold text-center text-neutral-900">:</span>
-                <span className="text-neutral-900 pl-1">{asesmen.asesmenProsesDetail.diskusi}</span>
+              <div className="flex items-start gap-2 py-1.5">
+                <span className="inline-flex items-center justify-center font-mono font-bold text-[10px] min-w-[18px] h-[18px] rounded bg-emerald-100 text-emerald-950 border border-emerald-400 shrink-0 mt-[1px] select-none print:border-black print:bg-neutral-100 print:text-black">
+                  1
+                </span>
+                <div className="grid grid-cols-[110px_16px_1fr] items-start flex-1 min-w-0">
+                  <span className="font-bold text-neutral-800">Diskusi</span>
+                  <span className="font-bold text-center text-neutral-900">:</span>
+                  <span className="text-neutral-900 pl-1">{asesmen.asesmenProsesDetail.diskusi}</span>
+                </div>
               </div>
-              <div className="grid grid-cols-[130px_16px_1fr] items-start py-1">
-                <span className="font-bold text-neutral-800">2. Presentasi</span>
-                <span className="font-bold text-center text-neutral-900">:</span>
-                <span className="text-neutral-900 pl-1">{asesmen.asesmenProsesDetail.presentasi}</span>
+              <div className="flex items-start gap-2 py-1.5">
+                <span className="inline-flex items-center justify-center font-mono font-bold text-[10px] min-w-[18px] h-[18px] rounded bg-emerald-100 text-emerald-950 border border-emerald-400 shrink-0 mt-[1px] select-none print:border-black print:bg-neutral-100 print:text-black">
+                  2
+                </span>
+                <div className="grid grid-cols-[110px_16px_1fr] items-start flex-1 min-w-0">
+                  <span className="font-bold text-neutral-800">Presentasi</span>
+                  <span className="font-bold text-center text-neutral-900">:</span>
+                  <span className="text-neutral-900 pl-1">{asesmen.asesmenProsesDetail.presentasi}</span>
+                </div>
               </div>
-              <div className="grid grid-cols-[130px_16px_1fr] items-start py-1">
-                <span className="font-bold text-neutral-800">3. Unjuk Kerja</span>
-                <span className="font-bold text-center text-neutral-900">:</span>
-                <span className="text-neutral-900 pl-1">{asesmen.asesmenProsesDetail.unjukKerja}</span>
+              <div className="flex items-start gap-2 py-1.5">
+                <span className="inline-flex items-center justify-center font-mono font-bold text-[10px] min-w-[18px] h-[18px] rounded bg-emerald-100 text-emerald-950 border border-emerald-400 shrink-0 mt-[1px] select-none print:border-black print:bg-neutral-100 print:text-black">
+                  3
+                </span>
+                <div className="grid grid-cols-[110px_16px_1fr] items-start flex-1 min-w-0">
+                  <span className="font-bold text-neutral-800">Unjuk Kerja</span>
+                  <span className="font-bold text-center text-neutral-900">:</span>
+                  <span className="text-neutral-900 pl-1">{asesmen.asesmenProsesDetail.unjukKerja}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -1298,16 +1352,16 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                         {item.elemen}
                       </td>
                       <td className="p-2 border-r border-black text-neutral-700 leading-snug align-top">
-                        {item.capaianPembelajaran}
+                        <ReadableColumnPoints content={item.capaianPembelajaran} badgeColor="neutral" />
                       </td>
                       <td className="p-2 border-r border-black font-semibold text-neutral-800 align-top">
-                        {item.lingkupMateri}
+                        <ReadableColumnPoints content={item.lingkupMateri} badgeColor="neutral" />
                       </td>
                       <td className="p-2 border-r border-black text-neutral-900 leading-snug align-top">
-                        {item.tujuanPembelajaran}
+                        <ReadableColumnPoints content={item.tujuanPembelajaran} badgeColor="amber" />
                       </td>
                       <td className="p-2 border-r border-black text-neutral-700 leading-snug align-top">
-                        {item.alurTujuanPembelajaran}
+                        <ReadableColumnPoints content={item.alurTujuanPembelajaran} badgeColor="emerald" />
                       </td>
                       <td className="p-2 border-r border-black text-neutral-800 align-top">
                         <ul className="list-disc pl-3 space-y-0.5">
@@ -1319,10 +1373,25 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                       <td className="p-2 border-r border-black font-mono font-bold text-center align-top text-neutral-900">
                         {item.alokasiWaktuJp} JP
                       </td>
-                      <td className="p-2 text-neutral-700 align-top text-[10px] space-y-1">
-                        <div><strong className="text-neutral-900">Diag:</strong> {item.asesmenRencana.diagnostik}</div>
-                        <div><strong className="text-neutral-900">Form:</strong> {item.asesmenRencana.formatif}</div>
-                        <div><strong className="text-neutral-900">Sum:</strong> {item.asesmenRencana.sumatif}</div>
+                      <td className="p-2 text-neutral-700 align-top text-[10px] space-y-1.5">
+                        <div className="flex items-start gap-1">
+                          <span className="font-mono font-bold text-[9px] px-1 py-0.2 rounded bg-neutral-100 text-neutral-900 border border-neutral-400 shrink-0 select-none print:border-black print:bg-neutral-100">
+                            Diag
+                          </span>
+                          <span className="flex-1 leading-tight">{item.asesmenRencana.diagnostik}</span>
+                        </div>
+                        <div className="flex items-start gap-1">
+                          <span className="font-mono font-bold text-[9px] px-1 py-0.2 rounded bg-amber-100 text-amber-950 border border-amber-400 shrink-0 select-none print:border-black print:bg-neutral-100">
+                            Form
+                          </span>
+                          <span className="flex-1 leading-tight">{item.asesmenRencana.formatif}</span>
+                        </div>
+                        <div className="flex items-start gap-1">
+                          <span className="font-mono font-bold text-[9px] px-1 py-0.2 rounded bg-blue-100 text-blue-950 border border-blue-400 shrink-0 select-none print:border-black print:bg-neutral-100">
+                            Sum
+                          </span>
+                          <span className="flex-1 leading-tight">{item.asesmenRencana.sumatif}</span>
+                        </div>
                       </td>
                     </tr>
                   ))}
