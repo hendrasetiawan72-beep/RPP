@@ -30,7 +30,8 @@ import { SchoolIdentityModal } from './components/SchoolIdentityModal';
 import { GuidelineModal } from './components/GuidelineModal';
 import { AiRefineModal } from './components/AiRefineModal';
 import { RppTableEditorModal } from './components/RppTableEditorModal';
-import { Check, Sparkles, Table, FileText, Compass, Code2 } from 'lucide-react';
+import { ExcelGuideAndAiPromptModal } from './components/ExcelGuideAndAiPromptModal';
+import { Check, Layers, Table, FileText, Compass, Code2 } from 'lucide-react';
 
 export default function App() {
   const [identity, setIdentity] = useState<SchoolIdentity>(DEFAULT_SCHOOL_IDENTITY);
@@ -62,7 +63,8 @@ export default function App() {
   const [isGuidelineModalOpen, setIsGuidelineModalOpen] = useState(false);
   const [isAiRefineModalOpen, setIsAiRefineModalOpen] = useState(false);
   const [isRppEditorOpen, setIsRppEditorOpen] = useState(false);
-  const [rppEditorInitialTab, setRppEditorInitialTab] = useState<'desain' | 'sintaks' | 'asesmen' | 'lampiran'>('sintaks');
+  const [isExcelGuideModalOpen, setIsExcelGuideModalOpen] = useState(false);
+  const [rppEditorInitialTab, setRppEditorInitialTab] = useState<'desain' | 'sintaks' | 'eksplorasi' | 'asesmen' | 'lampiran'>('sintaks');
   const [notification, setNotification] = useState<string | null>(null);
 
   const showNotification = (msg: string) => {
@@ -164,7 +166,7 @@ export default function App() {
       setRppRows(undefined);
       setCurrentDataMode('cp');
       setCustomPerangkat(null);
-      showNotification(`Memuat data ${sample.name} dalam Format CP.`);
+      showNotification(`Memuat data ${sample.name} dalam Format ATP (Alur Tujuan Pembelajaran).`);
     }
   };
 
@@ -213,7 +215,7 @@ export default function App() {
   };
 
   // Table & Syntax Editor Handlers
-  const handleOpenRppEditor = (initialTab: 'desain' | 'sintaks' | 'asesmen' | 'lampiran' = 'sintaks') => {
+  const handleOpenRppEditor = (initialTab: 'desain' | 'sintaks' | 'eksplorasi' | 'asesmen' | 'lampiran' = 'sintaks') => {
     setRppEditorInitialTab(initialTab);
     setIsRppEditorOpen(true);
   };
@@ -254,6 +256,7 @@ export default function App() {
         documentMode={documentMode}
         setDocumentMode={setDocumentMode}
         onOpenRppEditor={() => handleOpenRppEditor('sintaks')}
+        onOpenExcelGuideModal={() => setIsExcelGuideModalOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -262,7 +265,7 @@ export default function App() {
         <div className="bg-amber-300 border-2 border-black rounded-2xl p-4 sm:p-5 shadow-[4px_4px_0px_#000] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 no-print">
           <div className="flex items-start sm:items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white border-2 border-black flex items-center justify-center shrink-0 shadow-[2px_2px_0px_#000]">
-              <Sparkles className="w-5 h-5 text-amber-700" />
+              <Layers className="w-5 h-5 text-amber-700" />
             </div>
             <div>
               <h2 className="font-display font-black text-base sm:text-lg text-black leading-tight">
@@ -309,6 +312,7 @@ export default function App() {
           onRppRowsUpdated={handleRppRowsUpdated}
           onSelectSample={handleSelectSample}
           currentSubject={identity.mataPelajaran}
+          onOpenExcelGuideModal={() => setIsExcelGuideModalOpen(true)}
         />
 
         {/* Step 2: Document View Tabs & Material Selector */}
@@ -361,7 +365,11 @@ export default function App() {
             <span>SMK Muhammadiyah Bawang, Batang · Kurikulum Merdeka</span>
           </div>
 
-          <div className="text-[11px] text-neutral-500">
+          <div className="text-xs font-black text-neutral-900 bg-amber-200 border-2 border-black px-3.5 py-1 rounded-lg shadow-[2px_2px_0px_#000]">
+            Copyright developed by @hndx07
+          </div>
+
+          <div className="text-[11px] text-neutral-500 font-medium">
             Deep Learning (Mindful · Meaningful · Joyful) · Mapel Kejuruan & Normatif-Adaptif
           </div>
         </div>
@@ -396,6 +404,12 @@ export default function App() {
         onSaveModul={handleSaveModulFromEditor}
         identity={identity}
         initialTab={rppEditorInitialTab}
+      />
+
+      <ExcelGuideAndAiPromptModal
+        isOpen={isExcelGuideModalOpen}
+        onClose={() => setIsExcelGuideModalOpen(false)}
+        identity={identity}
       />
     </div>
   );

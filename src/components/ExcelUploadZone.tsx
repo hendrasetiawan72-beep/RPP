@@ -9,7 +9,6 @@ import {
   FilePlus2,
   Download,
   Layers,
-  Sparkles,
   BookCheck,
   ChevronDown,
   ChevronUp,
@@ -17,6 +16,7 @@ import {
 import { ExcelRawRow, ExcelRppRawRow, ParsedExcelResult } from '../types';
 import {
   parseExcelFile,
+  downloadAtpExcelTemplate,
   downloadCpExcelTemplate,
   downloadRppExcelTemplate,
 } from '../utils/excelParser';
@@ -31,6 +31,7 @@ interface ExcelUploadZoneProps {
   onRppRowsUpdated: (newRppRows: ExcelRppRawRow[]) => void;
   onSelectSample: (sample: MajorSample) => void;
   currentSubject: string;
+  onOpenExcelGuideModal?: () => void;
 }
 
 export const ExcelUploadZone: React.FC<ExcelUploadZoneProps> = ({
@@ -42,14 +43,15 @@ export const ExcelUploadZone: React.FC<ExcelUploadZoneProps> = ({
   onRppRowsUpdated,
   onSelectSample,
   currentSubject,
+  onOpenExcelGuideModal,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [lastUploadedType, setLastUploadedType] = useState<'cp' | 'rpp' | null>(currentMode);
+  const [lastUploadedType, setLastUploadedType] = useState<'atp' | 'cp' | 'rpp' | null>(currentMode);
   const [showManualEditor, setShowManualEditor] = useState(false);
-  const [editorTab, setEditorTab] = useState<'cp' | 'rpp'>(currentMode);
+  const [editorTab, setEditorTab] = useState<'atp' | 'cp' | 'rpp'>(currentMode);
   const [expandedRppRow, setExpandedRppRow] = useState<number | null>(0);
 
   const handleFileChange = async (file: File) => {
@@ -171,25 +173,36 @@ export const ExcelUploadZone: React.FC<ExcelUploadZoneProps> = ({
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-amber-400 border border-black inline-block"></span>
             <h2 className="font-display font-black text-xl text-neutral-900 tracking-tight">
-              Langkah 1: Unggah Data Excel (Format CP atau Format RPP Terintegrasi)
+              Langkah 1: Unggah Data Excel (Format ATP atau Format RPP Terintegrasi)
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-neutral-600 mt-1">
-            Mendukung 2 format spreadsheet terpisah untuk SMK Muhammadiyah Bawang: <strong>Format CP Dasar</strong> dan <strong>Format RPP Terintegrasi Lengkap</strong>.
+            Mendukung 2 format spreadsheet terpisah untuk SMK Muhammadiyah Bawang: <strong>Format ATP (Alur Tujuan Pembelajaran)</strong> dan <strong>Format RPP Terintegrasi Lengkap</strong>.
           </p>
         </div>
 
-        {/* Status Mode Badge */}
-        <div className="flex items-center gap-2">
+        {/* Status Mode Badge & Guide Trigger */}
+        <div className="flex flex-wrap items-center gap-2">
+          {onOpenExcelGuideModal && (
+            <button
+              onClick={onOpenExcelGuideModal}
+              className="neo-btn px-3 py-1.5 bg-emerald-300 hover:bg-emerald-200 text-black text-xs font-black rounded-lg border-2 border-black flex items-center gap-1.5 shadow-[2px_2px_0px_#000]"
+              title="Lihat Alur 2-Tahap CP ➔ ATP ➔ RPP dan Salin Prompt AI"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-900" />
+              <span>Panduan Excel & Prompt AI</span>
+            </button>
+          )}
+
           {currentMode === 'rpp' ? (
             <span className="px-3 py-1 bg-emerald-100 border-2 border-emerald-800 text-emerald-950 text-xs font-black rounded-lg flex items-center gap-1.5 shadow-[2px_2px_0px_#065f46]">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
               <span>Mode RPP Terintegrasi Aktif</span>
             </span>
           ) : (
             <span className="px-3 py-1 bg-amber-100 border-2 border-amber-800 text-amber-950 text-xs font-black rounded-lg flex items-center gap-1.5 shadow-[2px_2px_0px_#92400e]">
               <Layers className="w-3.5 h-3.5 text-amber-700" />
-              <span>Mode CP & ATP Otomatis Aktif</span>
+              <span>Mode ATP (Alur Tujuan Pembelajaran) Aktif</span>
             </span>
           )}
         </div>
@@ -197,43 +210,43 @@ export const ExcelUploadZone: React.FC<ExcelUploadZoneProps> = ({
 
       {/* 2 Format Excel Cards & Download Zone */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
-        {/* Card 1: Format Excel CP */}
+        {/* Card 1: Format Excel ATP */}
         <div className="p-4 bg-amber-50/70 border-2 border-black rounded-2xl flex flex-col justify-between shadow-[3px_3px_0px_#000]">
           <div>
             <div className="flex items-center justify-between gap-2">
               <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase text-amber-950 bg-amber-200 border border-black px-2 py-0.5 rounded-md">
                 <FileSpreadsheet className="w-3.5 h-3.5 text-amber-800" />
-                <span>Format 1: Excel CP (Capaian Pembelajaran)</span>
+                <span>Format 1: Excel ATP (Alur Tujuan Pembelajaran)</span>
               </span>
               <span className="text-[10px] font-bold text-neutral-500">Ringkas & Otomatis</span>
             </div>
             <p className="text-xs text-neutral-700 mt-2 leading-relaxed">
-              Format ringkas bagi guru untuk menginput <strong>Elemen, CP, Lingkup Materi, dan JP</strong>. Sistem otomatis menyusun matriks ATP dan modul RPP terpisah secara terstandar.
+              Format ringkas bagi guru untuk menginput <strong>Elemen, Capaian / ATP, Lingkup Materi, dan Alokasi JP</strong>. Sistem otomatis menyusun matriks ATP dan modul RPP terpisah secara terstandar.
             </p>
           </div>
 
           <div className="pt-3 mt-3 border-t border-black/10 flex flex-wrap items-center gap-2">
-            <span className="text-[10px] font-black text-neutral-700 w-full sm:w-auto">Unduh Template CP:</span>
+            <span className="text-[10px] font-black text-neutral-700 w-full sm:w-auto">Unduh Template ATP:</span>
             <button
-              onClick={() => downloadCpExcelTemplate('kejuruan')}
+              onClick={() => downloadAtpExcelTemplate('kejuruan')}
               className="neo-btn px-2.5 py-1 bg-amber-200 hover:bg-amber-300 text-black text-[11px] font-bold rounded-md flex items-center gap-1"
-              title="Unduh Template CP Mapel Kejuruan (AKL/TSM)"
+              title="Unduh Template ATP Mapel Kejuruan (AKL/TSM)"
             >
               <Download className="w-3 h-3 text-amber-900" />
               <span>Kejuruan (.xlsx)</span>
             </button>
             <button
-              onClick={() => downloadCpExcelTemplate('umum')}
+              onClick={() => downloadAtpExcelTemplate('umum')}
               className="neo-btn px-2.5 py-1 bg-blue-100 hover:bg-blue-200 text-black text-[11px] font-bold rounded-md flex items-center gap-1"
-              title="Unduh Template CP Mapel Umum / Normatif-Adaptif"
+              title="Unduh Template ATP Mapel Umum / Normatif-Adaptif"
             >
               <Download className="w-3 h-3 text-blue-900" />
               <span>Mapel Umum (.xlsx)</span>
             </button>
             <button
-              onClick={() => downloadCpExcelTemplate('blank')}
+              onClick={() => downloadAtpExcelTemplate('blank')}
               className="neo-btn px-2.5 py-1 bg-white hover:bg-neutral-100 text-black text-[11px] font-bold rounded-md border border-black flex items-center gap-1"
-              title="Unduh Template CP Format Kosong"
+              title="Unduh Template ATP Format Kosong"
             >
               <FilePlus2 className="w-3 h-3 text-neutral-700" />
               <span>Kosong (.xlsx)</span>
@@ -293,7 +306,7 @@ export const ExcelUploadZone: React.FC<ExcelUploadZoneProps> = ({
         <div className="p-3 bg-gradient-to-r from-amber-100 via-orange-50 to-blue-50 border-2 border-black rounded-xl">
           <span className="text-[11px] font-black uppercase tracking-wider text-neutral-900 flex items-center gap-1.5 mb-2">
             <span className="w-2 h-2 rounded-full bg-amber-500 border border-black"></span>
-            <span>⭐ Pilihan Awal Dokumen Utama (AKL, TSM, Bahasa Inggris):</span>
+            <span>Pilihan Awal Dokumen Utama (AKL, TSM, Bahasa Inggris):</span>
           </span>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {/* AKL */}
@@ -437,7 +450,7 @@ export const ExcelUploadZone: React.FC<ExcelUploadZoneProps> = ({
           Klik atau Seret File Excel (.xlsx / .xls) ke Sini
         </h3>
         <p className="text-[11px] text-neutral-600 mt-1 max-w-lg mx-auto">
-          Sistem otomatis mendeteksi apakah file Anda berupa <strong>Format CP</strong> atau <strong>Format RPP Terintegrasi (Semua Kolom)</strong>.
+          Sistem otomatis mendeteksi apakah file Anda berupa <strong>Format ATP (Alur Tujuan Pembelajaran)</strong> atau <strong>Format RPP Terintegrasi (Semua Kolom)</strong>.
         </p>
       </div>
 

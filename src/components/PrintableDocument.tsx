@@ -15,7 +15,7 @@ interface PrintableDocumentProps {
   activeFilter?: 'all' | 'atp' | 'modul' | 'all_modul' | 'lkpd';
   activeModulIndex?: number;
   watermarkOpacity?: number;
-  onOpenRppEditor?: (initialTab?: 'desain' | 'sintaks' | 'asesmen' | 'lampiran') => void;
+  onOpenRppEditor?: (initialTab?: 'desain' | 'sintaks' | 'eksplorasi' | 'asesmen' | 'lampiran') => void;
 }
 
 export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
@@ -782,9 +782,19 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                       </p>
 
                       {langkah.kegiatanInti.memahamiBermaknaMenggembirakan.tabelEksplorasi && (
-                        <div className="my-2 border border-black max-w-md">
-                          <div className="bg-amber-100 font-bold p-1.5 border-b border-black text-[11px]">
-                            {langkah.kegiatanInti.memahamiBermaknaMenggembirakan.tabelEksplorasi.judul}
+                        <div className="my-2 border border-black max-w-lg">
+                          <div className="bg-amber-100 font-bold p-1.5 border-b border-black text-[11px] flex items-center justify-between gap-2">
+                            <span>{langkah.kegiatanInti.memahamiBermaknaMenggembirakan.tabelEksplorasi.judul}</span>
+                            {onOpenRppEditor && (
+                              <button
+                                onClick={() => onOpenRppEditor('eksplorasi')}
+                                className="neo-btn px-2 py-0.5 bg-amber-300 hover:bg-amber-200 text-black text-[10px] font-black rounded border border-black flex items-center gap-1 shadow-[1px_1px_0px_#000] no-print shrink-0"
+                                title="Ubah tabel ini secara manual atau upload Excel"
+                              >
+                                <Edit3 className="w-2.5 h-2.5" />
+                                <span>✏️ Ubah Manual / Upload Excel</span>
+                              </button>
+                            )}
                           </div>
                           <table className="w-full text-center text-[11px]">
                             <thead>
@@ -1367,6 +1377,12 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
             {modulAjarList.map((modul, idx) => renderRppDeepLearning(modul, idx, true))}
           </section>
         )}
+
+        {/* Kredensial Footer Dokumen Resmi */}
+        <div className="pt-4 border-t border-neutral-300 flex flex-col sm:flex-row items-center justify-between text-[10px] text-neutral-500 font-mono print:text-[9px]">
+          <span>SMK Muhammadiyah Bawang, Batang · Perangkat Ajar Kurikulum Merdeka & Deep Learning</span>
+          <span className="font-bold text-neutral-800">Copyright developed by @hndx07</span>
+        </div>
       </div>
     </div>
   );

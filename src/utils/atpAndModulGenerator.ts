@@ -8,6 +8,89 @@ import {
 } from '../types';
 
 /**
+ * Helper to parse exploration table string from Excel or manual input
+ * Supports: "Judul :: Kolom1 | Kolom2 :: r1_c1 | r1_c2 ; r2_c1 | r2_c2" or multiline
+ */
+export function parseTabelEksplorasi(rawStr?: string, defaultMateri?: string): {
+  judul: string;
+  kolom: [string, string];
+  data: [string, string][];
+} {
+  const defaultTable = {
+    judul: `Tabel Hasil Eksplorasi Data & Parameter: ${defaultMateri || 'Materi Pokok'}`,
+    kolom: ['Indikator / Parameter Kerja', 'Hasil Analisis & Uji Fungsional'] as [string, string],
+    data: [
+      ['Parameter 1 (Kondisi Awal)', 'Terverifikasi sesuai spesifikasi dasar'],
+      ['Parameter 2 (Pengujian Dinamis)', 'Terdapat deviasi parameter yang dianalisis solusinya'],
+      ['Parameter 3 (Verifikasi Akhir)', 'Memenuhi standar toleransi dan kriteria unjuk kerja'],
+    ] as [string, string][],
+  };
+
+  if (!rawStr || !rawStr.trim()) return defaultTable;
+
+  try {
+    if (rawStr.includes('::')) {
+      const parts = rawStr.split('::').map((s) => s.trim());
+      const judul = parts[0] || defaultTable.judul;
+      let kolom: [string, string] = defaultTable.kolom;
+      if (parts[1]) {
+        const colParts = parts[1].split('|').map((c) => c.trim());
+        if (colParts.length >= 2) {
+          kolom = [colParts[0], colParts[1]];
+        }
+      }
+      const data: [string, string][] = [];
+      if (parts[2]) {
+        const rowParts = parts[2].split(';').map((r) => r.trim()).filter(Boolean);
+        rowParts.forEach((r) => {
+          const cells = r.split('|').map((c) => c.trim());
+          if (cells.length >= 2) {
+            data.push([cells[0], cells[1]]);
+          } else if (cells.length === 1) {
+            data.push([cells[0], '-']);
+          }
+        });
+      }
+      if (data.length > 0) {
+        return { judul, kolom, data };
+      }
+    }
+
+    const lines = rawStr.split('\n').map((l) => l.trim()).filter(Boolean);
+    if (lines.length >= 2) {
+      let judul = defaultTable.judul;
+      let startIndex = 0;
+      if (!lines[0].includes('|')) {
+        judul = lines[0];
+        startIndex = 1;
+      }
+      let kolom: [string, string] = defaultTable.kolom;
+      if (lines[startIndex] && lines[startIndex].includes('|')) {
+        const headerCols = lines[startIndex].split('|').map((c) => c.trim());
+        if (headerCols.length >= 2) {
+          kolom = [headerCols[0], headerCols[1]];
+          startIndex++;
+        }
+      }
+      const data: [string, string][] = [];
+      for (let i = startIndex; i < lines.length; i++) {
+        const cells = lines[i].split('|').map((c) => c.trim());
+        if (cells.length >= 2) {
+          data.push([cells[0], cells[1]]);
+        }
+      }
+      if (data.length > 0) {
+        return { judul, kolom, data };
+      }
+    }
+  } catch (e) {
+    console.warn('Gagal mem-parse tabelEksplorasi dari Excel, menggunakan default:', e);
+  }
+
+  return defaultTable;
+}
+
+/**
  * Generates an ATP (Alur Tujuan Pembelajaran) matrix and segmented RPP Pendekatan Deep Learning
  * strictly matching the official format from SMK Muhammadiyah Bawang.
  */
@@ -302,15 +385,7 @@ export function generatePerangkatAjarFromRpp(
             memahamiBermaknaMenggembirakan: {
               instruksiGuru: row.sintaksInti1 ||
                 `Guru meminta murid memperhatikan fenomena, data, dan lembar kerja ${materi} dengan saksama. Guru mengajukan pertanyaan pemantik bernalar kritis dan membimbing eksplorasi berkelompok.`,
-              tabelEksplorasi: {
-                judul: `Tabel Hasil Eksplorasi Data & Parameter: ${materi}`,
-                kolom: ['Indikator / Parameter Kerja', 'Hasil Analisis & Uji Fungsional'],
-                data: [
-                  ['Parameter 1 (Kondisi Awal)', 'Terverifikasi sesuai spesifikasi dasar'],
-                  ['Parameter 2 (Pengujian Dinamis)', 'Terdapat deviasi parameter yang dianalisis solusinya'],
-                  ['Parameter 3 (Verifikasi Akhir)', 'Memenuhi standar toleransi dan kriteria unjuk kerja'],
-                ],
-              },
+              tabelEksplorasi: parseTabelEksplorasi(row.tabelEksplorasi, materi),
               rangkumanTemuan: [
                 'Data dan tabel memberikan informasi visual yang akurat mengenai performa sistem.',
                 'Pola relasi masukan (input) dan keluaran (output) terukur secara konsisten.',
@@ -464,19 +539,13 @@ export function generatePerangkatAjarFromRpp(
           lkpd: {
             nomor: `LKPD-${unitNo}`,
             judul: `LEMBAR KERJA PESERTA DIDIK (LKPD) - ${materi.toUpperCase()}`,
-            rangkumanHasilDiskusi: `Berdasarkan pengamatan dan eksperimen kelompok mengenai ${materi}, kami menyimpulkan bahwa penguasaan prosedur teknis dan nalar kritis sangat menentukan kualitas hasil kerja.`,
-            pertanyaanDiskusi: [
-              { no: 1, pertanyaan: `Identifikasi 3 komponen utama dalam sistem ${materi} dan jelaskan fungsinya masing-masing!` },
-              { no: 2, pertanyaan: `Analisis penyebab bila terjadi anomali atau deviasi parameter pada ${materi} dan bagaimana solusinya!` },
-              { no: 3, pertanyaan: `Bagaimana penerapan standar keselamatan kerja (K3LH) dan budaya 5S pada saat menangani ${materi}?` },
-            ],
-            soalAnalisisKontekstual: [
-              `Jika sebuah unit usaha menghadapi kendala pada pengoperasian ${materi}, langkah sistematis apa yang harus diambil terlebih dahulu?`,
-              `Jelaskan kaitan antara pemahaman materi ini dengan kompetensi yang dibutuhkan oleh mitra industri SMK Muhammadiyah Bawang!`,
-            ],
+            tautan: row.tautanLkpd || 'https://docs.google.com/document/d/1sample-lkpd-smk-muhammadiyah-bawang/preview',
+            embedCode: row.embedLkpd || '',
           },
           bahanBacaan: {
             judul: `Bahan Bacaan Siswa & Guru: Konsep Fundamental & Terapan ${materi}`,
+            tautan: row.tautanMateri || 'https://guru.kemdikbud.go.id/',
+            embedCode: row.embedMateri || '',
             pengantarFungsi: `Materi ${materi} merupakan kompetensi inti yang membekali peserta didik dengan kecakapan analitis dan praktis berstandar industri.`,
             analogiIlustrasi: `Memahami ${materi} seperti merawat dan mengoperasikan mesin presisi: setiap bagian memiliki fungsi spesifik yang saling menopang secara harmonis.`,
             pembahasan1: {
@@ -525,6 +594,7 @@ export function generatePerangkatAjarFromRpp(
               ],
             },
           ],
+          embedCodeRubrik: row.embedRubrik || '',
           rekapNilaiSiswaContoh,
         },
       },

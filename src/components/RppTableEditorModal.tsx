@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   X,
   Save,
@@ -7,12 +7,27 @@ import {
   Table,
   Layers,
   Info,
+  UploadCloud,
+  FileSpreadsheet,
+  Plus,
+  Trash2,
+  Download,
+  CheckCircle2,
+  AlertCircle,
+  FilePlus2,
+  ExternalLink,
+  ChevronRight,
+  BookOpen,
 } from 'lucide-react';
 import { ModulAjarData, SchoolIdentity } from '../types';
 import {
   DEEP_LEARNING_SYNTAX_OPTIONS,
   SyntaxOption,
 } from '../utils/deepLearningSyntax';
+import {
+  downloadTabelEksplorasiTemplate,
+  parseTabelEksplorasiFile,
+} from '../utils/excelParser';
 
 interface RppTableEditorModalProps {
   isOpen: boolean;
@@ -21,7 +36,7 @@ interface RppTableEditorModalProps {
   selectedModulIndex: number;
   onSaveModul: (updatedModul: ModulAjarData, index: number) => void;
   identity: SchoolIdentity;
-  initialTab?: 'desain' | 'sintaks' | 'asesmen' | 'lampiran';
+  initialTab?: 'desain' | 'sintaks' | 'eksplorasi' | 'asesmen' | 'lampiran';
 }
 
 export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
@@ -34,7 +49,10 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
   initialTab = 'sintaks',
 }) => {
   const [activeUnitIdx, setActiveUnitIdx] = useState<number>(selectedModulIndex);
-  const [activeTab, setActiveTab] = useState<'desain' | 'sintaks' | 'asesmen' | 'lampiran'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'desain' | 'sintaks' | 'eksplorasi' | 'asesmen' | 'lampiran'>(initialTab);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
+  const tableFileInputRef = useRef<HTMLInputElement>(null);
 
   // Deep clone current module for safe in-memory editing
   const currentModul = modulList[activeUnitIdx] || modulList[0];
@@ -130,6 +148,156 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
     setEditedModul(updated);
   };
 
+  // Tabel Eksplorasi data getter with safe fallback
+  const rawTabel = langkah.kegiatanInti.memahamiBermaknaMenggembirakan.tabelEksplorasi;
+  const currentTable = rawTabel || {
+    judul: `Tabel Hasil Eksplorasi Data & Parameter: ${editedModul.judulMateri}`,
+    kolom: ['Parameter / Kondisi Pengamatan', 'Hasil Analisis & Rekomendasi Solusi'] as [string, string],
+    data: [
+      ['Kondisi Pengamatan 1', 'Hasil Temuan & Tindakan 1'],
+      ['Kondisi Pengamatan 2', 'Hasil Temuan & Tindakan 2'],
+      ['Kondisi Pengamatan 3', 'Hasil Temuan & Tindakan 3'],
+    ] as [string, string][],
+  };
+
+  const handleUpdateTableMeta = (judul?: string, col1?: string, col2?: string) => {
+    const updated = JSON.parse(JSON.stringify(editedModul));
+    const tbl = updated.rppFormat.pengalamanBelajar.kegiatanInti.memahamiBermaknaMenggembirakan.tabelEksplorasi || {
+      judul: currentTable.judul,
+      kolom: [currentTable.kolom[0], currentTable.kolom[1]],
+      data: currentTable.data.map((r: [string, string]) => [r[0], r[1]]),
+    };
+    if (judul !== undefined) tbl.judul = judul;
+    if (col1 !== undefined) tbl.kolom[0] = col1;
+    if (col2 !== undefined) tbl.kolom[1] = col2;
+    updated.rppFormat.pengalamanBelajar.kegiatanInti.memahamiBermaknaMenggembirakan.tabelEksplorasi = tbl;
+    setEditedModul(updated);
+  };
+
+  const handleUpdateTableRow = (rowIdx: number, colIdx: 0 | 1, value: string) => {
+    const updated = JSON.parse(JSON.stringify(editedModul));
+    const tbl = updated.rppFormat.pengalamanBelajar.kegiatanInti.memahamiBermaknaMenggembirakan.tabelEksplorasi || {
+      judul: currentTable.judul,
+      kolom: [currentTable.kolom[0], currentTable.kolom[1]],
+      data: currentTable.data.map((r: [string, string]) => [r[0], r[1]]),
+    };
+    if (!tbl.data[rowIdx]) tbl.data[rowIdx] = ['', ''];
+    tbl.data[rowIdx][colIdx] = value;
+    updated.rppFormat.pengalamanBelajar.kegiatanInti.memahamiBermaknaMenggembirakan.tabelEksplorasi = tbl;
+    setEditedModul(updated);
+  };
+
+  const handleAddTableRow = () => {
+    const updated = JSON.parse(JSON.stringify(editedModul));
+    const tbl = updated.rppFormat.pengalamanBelajar.kegiatanInti.memahamiBermaknaMenggembirakan.tabelEksplorasi || {
+      judul: currentTable.judul,
+      kolom: [currentTable.kolom[0], currentTable.kolom[1]],
+      data: currentTable.data.map((r: [string, string]) => [r[0], r[1]]),
+    };
+    tbl.data.push(['', '']);
+    updated.rppFormat.pengalamanBelajar.kegiatanInti.memahamiBermaknaMenggembirakan.tabelEksplorasi = tbl;
+    setEditedModul(updated);
+  };
+
+  const handleRemoveTableRow = (rowIdx: number) => {
+    const updated = JSON.parse(JSON.stringify(editedModul));
+    const tbl = updated.rppFormat.pengalamanBelajar.kegiatanInti.memahamiBermaknaMenggembirakan.tabelEksplorasi || {
+      judul: currentTable.judul,
+      kolom: [currentTable.kolom[0], currentTable.kolom[1]],
+      data: currentTable.data.map((r: [string, string]) => [r[0], r[1]]),
+    };
+    tbl.data.splice(rowIdx, 1);
+    if (tbl.data.length === 0) {
+      tbl.data.push(['', '']);
+    }
+    updated.rppFormat.pengalamanBelajar.kegiatanInti.memahamiBermaknaMenggembirakan.tabelEksplorasi = tbl;
+    setEditedModul(updated);
+  };
+
+  const handleDownloadTemplateTabel = () => {
+    downloadTabelEksplorasiTemplate(currentTable.judul, currentTable.kolom[0], currentTable.kolom[1], currentTable.data);
+    setUploadSuccess('Template Excel (.xlsx) untuk Tabel Eksplorasi berhasil diunduh.');
+    setTimeout(() => setUploadSuccess(null), 3500);
+  };
+
+  const handleUploadTabelEksplorasi = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploadError(null);
+      const parsed = await parseTabelEksplorasiFile(file);
+      const updated = JSON.parse(JSON.stringify(editedModul));
+      updated.rppFormat.pengalamanBelajar.kegiatanInti.memahamiBermaknaMenggembirakan.tabelEksplorasi = {
+        judul: parsed.judul || currentTable.judul,
+        kolom: parsed.kolom,
+        data: parsed.data,
+      };
+      setEditedModul(updated);
+      setUploadSuccess(`Berhasil mengunggah file Excel "${file.name}": Memuat ${parsed.data.length} baris data eksplorasi.`);
+      setTimeout(() => setUploadSuccess(null), 4000);
+    } catch (err: any) {
+      setUploadError(err.message || 'Gagal membaca file Excel tabel eksplorasi.');
+    } finally {
+      if (tableFileInputRef.current) {
+        tableFileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleApplyTablePreset = (presetKey: 'akl' | 'tsm' | 'rpl' | 'umum') => {
+    const PRESETS = {
+      akl: {
+        judul: `Tabel Hasil Eksplorasi Analisis Transaksi Kas & Keuangan: ${editedModul.judulMateri}`,
+        kolom: ['Dokumen Transaksi / Bukti Kas', 'Analisis Akun (Debit/Kredit) & Verifikasi'] as [string, string],
+        data: [
+          ['BKK-001 (Bukti Kas Keluar Pengisian Kas Kecil)', 'Beban Operasional (Debit) Rp 350.000, Kas Kecil (Kredit) Rp 350.000'],
+          ['BKM-004 (Bukti Kas Masuk Piutang Pelanggan)', 'Kas Bank (Debit) Rp 4.500.000, Piutang Dagang (Kredit) Rp 4.500.000'],
+          ['Faktur No. F-12 (Penjualan Barang Dagang)', 'Piutang Usaha (Debit) Rp 8.200.000, Pendapatan Penjualan (Kredit) Rp 8.200.000'],
+          ['Memo Penyesuaian Rekonsiliasi Bank', 'Beban Administrasi Bank (Debit) Rp 25.000, Kas Bank (Kredit) Rp 25.000'],
+        ] as [string, string][],
+      },
+      tsm: {
+        judul: `Tabel Hasil Eksplorasi Pengukuran & Diagnosis Komponen: ${editedModul.judulMateri}`,
+        kolom: ['Parameter Pengukuran / Komponen', 'Hasil Multitester Standar & Rekomendasi Tindakan'] as [string, string],
+        data: [
+          ['Tegangan Baterai / Aki (Kondisi Diam)', '12,6 Volt (Normal Standar Pabrik, Siap Dioperasikan)'],
+          ['Tegangan Pengisian (Putaran Mesin 5.000 RPM)', '14,2 - 14,8 Volt (Regulator/Kiprok Bekerja Normal)'],
+          ['Tahanan Spul Pengisian (Stator Coil)', '0,4 - 1,2 Ohm (Koil Normal, Tidak Ada Hubung Singkat)'],
+          ['Uji Kebocoran Arus (Kunci Kontak OFF)', '0,01 mA (Standar Max 1 mA, Bebas Dari Arus Liar)'],
+        ] as [string, string][],
+      },
+      rpl: {
+        judul: `Tabel Hasil Eksplorasi Pengujian Endpoint & State Aplikasi: ${editedModul.judulMateri}`,
+        kolom: ['Skenario Pengujian / Request Endpoint', 'Response Code, Validasi Payload & Output UI'] as [string, string],
+        data: [
+          ['POST /api/auth/login (Kredensial Sesuai)', 'HTTP 200 OK, JWT Token Diterima & Disimpan di LocalStorage'],
+          ['POST /api/auth/login (Password Salah)', 'HTTP 401 Unauthorized, Notifikasi Error Muncul di UI'],
+          ['GET /api/modul-ajar (Query Fase F)', 'HTTP 200 OK, Array Data Sesuai Fase & Semester Terpilih'],
+          ['PUT /api/lampiran/embed (Sanitized HTML)', 'HTTP 200 OK, Konten Iframe Tampil Aman Tanpa Celah XSS'],
+        ] as [string, string][],
+      },
+      umum: {
+        judul: `Tabel Hasil Eksplorasi Analisis Konsep & Studi Kasus: ${editedModul.judulMateri}`,
+        kolom: ['Kutipan Masalah / Objek Analisis', 'Fungsi Bahasa / Rumusan Solusi Pemecahan'] as [string, string],
+        data: [
+          ['Data Masalah 1: Kalimat pengandaian faktual', 'Menggunakan conditional clause type 1 dengan present tense logis'],
+          ['Data Masalah 2: Kalimat pengandaian hipotetis', 'Menggunakan conditional clause type 2 dengan past tense terstruktur'],
+          ['Data Masalah 3: Verba material dalam teks prosedur', 'Menunjukkan urutan tindakan nyata yang harus dipatuhi secara disiplin'],
+        ] as [string, string][],
+      },
+    };
+    const p = PRESETS[presetKey];
+    const updated = JSON.parse(JSON.stringify(editedModul));
+    updated.rppFormat.pengalamanBelajar.kegiatanInti.memahamiBermaknaMenggembirakan.tabelEksplorasi = {
+      judul: p.judul,
+      kolom: p.kolom,
+      data: p.data,
+    };
+    setEditedModul(updated);
+    setUploadSuccess(`Preset tabel eksplorasi "${presetKey.toUpperCase()}" berhasil diterapkan!`);
+    setTimeout(() => setUploadSuccess(null), 3000);
+  };
+
   const handleSave = () => {
     onSaveModul(editedModul, activeUnitIdx);
     onClose();
@@ -196,7 +364,7 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
           </div>
 
           {/* Navigation Tabs */}
-          <div className="flex items-center gap-1">
+          <div className="flex flex-wrap items-center gap-1">
             <button
               onClick={() => setActiveTab('desain')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
@@ -205,7 +373,7 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
                   : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-50'
               }`}
             >
-              1. Kolom Desain RPP
+              1. Desain RPP
             </button>
             <button
               onClick={() => setActiveTab('sintaks')}
@@ -215,7 +383,18 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
                   : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-50'
               }`}
             >
-              2. Sintaks PjBL / PBL Deep Learning
+              2. Sintaks PjBL / PBL
+            </button>
+            <button
+              onClick={() => setActiveTab('eksplorasi')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${
+                activeTab === 'eksplorasi'
+                  ? 'bg-yellow-300 text-black border-2 border-black font-black shadow-[2px_2px_0px_#000]'
+                  : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-50'
+              }`}
+            >
+              <Table className="w-3.5 h-3.5 text-black" />
+              <span>3. Tabel Eksplorasi (Manual / Excel)</span>
             </button>
             <button
               onClick={() => setActiveTab('asesmen')}
@@ -225,7 +404,7 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
                   : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-50'
               }`}
             >
-              3. Tabel Asesmen & Nilai
+              4. Tabel Asesmen & Nilai
             </button>
             <button
               onClick={() => setActiveTab('lampiran')}
@@ -235,13 +414,26 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
                   : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-50'
               }`}
             >
-              4. Lampiran & Kode Embed
+              5. Lampiran & Kode Embed
             </button>
           </div>
         </div>
 
         {/* Modal Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+          {/* Top Feedback Messages */}
+          {uploadSuccess && (
+            <div className="p-3 bg-emerald-100 border-2 border-emerald-800 rounded-xl flex items-center gap-2 text-xs font-bold text-emerald-950 shadow-[2px_2px_0px_#065f46] animate-in fade-in">
+              <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
+              <span>{uploadSuccess}</span>
+            </div>
+          )}
+          {uploadError && (
+            <div className="p-3 bg-rose-100 border-2 border-rose-800 rounded-xl flex items-center gap-2 text-xs font-bold text-rose-950 shadow-[2px_2px_0px_#9f1239] animate-in fade-in">
+              <AlertCircle className="w-4 h-4 text-rose-700 shrink-0" />
+              <span>{uploadError}</span>
+            </div>
+          )}
           
           {/* TAB 1: DESAIN PEMBELAJARAN & KOLOM RPP */}
           {activeTab === 'desain' && (
@@ -483,6 +675,23 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
                         className="w-full px-3 py-1.5 border border-black rounded-lg text-xs bg-white font-mono"
                       />
                     </div>
+
+                    {/* Quick Access to Tabel Eksplorasi */}
+                    <div className="p-2.5 bg-yellow-50 border border-yellow-400 rounded-lg flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <Table className="w-4 h-4 text-yellow-800" />
+                        <span className="text-xs font-bold text-yellow-950">
+                          Tabel Hasil Eksplorasi Pengamatan Murid ({currentTable.data.length} baris)
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setActiveTab('eksplorasi')}
+                        className="neo-btn px-2.5 py-1 bg-yellow-300 hover:bg-yellow-200 text-black text-[11px] font-bold rounded border border-black flex items-center gap-1 shadow-[1px_1px_0px_#000]"
+                      >
+                        <span>Edit Tabel / Upload Excel</span>
+                        <ChevronRight className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -605,7 +814,252 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
             </div>
           )}
 
-          {/* TAB 3: ASESMEN & EVALUASI */}
+          {/* TAB 3: TABEL HASIL EKSPLORASI (MANUAL & UPLOAD EXCEL) */}
+          {activeTab === 'eksplorasi' && (
+            <div className="space-y-6 animate-in fade-in duration-150">
+              {/* Info Box */}
+              <div className="bg-yellow-50 border-2 border-yellow-500 rounded-xl p-3.5 flex items-start gap-2.5">
+                <Table className="w-5 h-5 text-yellow-800 shrink-0 mt-0.5" />
+                <div className="text-xs text-yellow-950">
+                  <strong className="block font-bold">Tabel Hasil Eksplorasi Data & Parameter Pengamatan:</strong>
+                  Tabel ini muncul di RPP Deep Learning resmi SMK Muhammadiyah Bawang pada tahap <strong>Memahami (Bermakna - Menggembirakan)</strong>.
+                  Anda dapat mengubah data tabel ini secara <strong>manual</strong> (menambah baris, mengubah nilai, atau menyesuaikan header kolom), atau mengubahnya secara cepat melalui <strong>Upload File Excel (.xlsx / .csv)</strong>.
+                </div>
+              </div>
+
+              {/* Action Toolbar: Excel Upload, Download Template, and Quick Presets */}
+              <div className="border-2 border-black rounded-xl p-4 bg-white shadow-[3px_3px_0px_#000] space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-black/10 pb-3">
+                  <div>
+                    <h4 className="font-display font-black text-sm uppercase text-neutral-900 flex items-center gap-2">
+                      <FileSpreadsheet className="w-4 h-4 text-emerald-700" />
+                      <span>Opsi Ubah Melalui Excel (.xlsx)</span>
+                    </h4>
+                    <p className="text-[11px] text-neutral-600">
+                      Unduh template, isi dengan Microsoft Excel / WPS / Google Sheets, lalu unggah kembali ke sini.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    {/* Hidden file input */}
+                    <input
+                      ref={tableFileInputRef}
+                      type="file"
+                      accept=".xlsx,.xls,.csv"
+                      onChange={handleUploadTabelEksplorasi}
+                      className="hidden"
+                    />
+
+                    {/* Download Template Button */}
+                    <button
+                      onClick={handleDownloadTemplateTabel}
+                      className="neo-btn px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-black text-xs font-bold rounded-lg border border-black flex items-center gap-1.5 shadow-[1px_1px_0px_#000]"
+                      title="Unduh Template Excel Tabel Eksplorasi"
+                    >
+                      <Download className="w-3.5 h-3.5 text-blue-800" />
+                      <span>Unduh Template Excel (.xlsx)</span>
+                    </button>
+
+                    {/* Upload Excel Button */}
+                    <button
+                      onClick={() => tableFileInputRef.current?.click()}
+                      className="neo-btn px-3.5 py-1.5 bg-emerald-400 hover:bg-emerald-300 text-black text-xs font-black rounded-lg border-2 border-black flex items-center gap-1.5 shadow-[2px_2px_0px_#000]"
+                    >
+                      <UploadCloud className="w-4 h-4 text-black" />
+                      <span>Unggah File Excel Tabel</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Quick Presets by Major */}
+                <div>
+                  <span className="text-[11px] font-black uppercase text-neutral-700 block mb-2">
+                    ⚡ Atau Terapkan Preset Contoh Riil Sesuai Konsentrasi Keahlian:
+                  </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <button
+                      onClick={() => handleApplyTablePreset('akl')}
+                      className="neo-btn p-2 bg-amber-50 hover:bg-amber-100 border border-black rounded-lg text-left transition-all"
+                    >
+                      <span className="text-[10px] font-black uppercase text-amber-900 block">AKL (Akuntansi)</span>
+                      <span className="text-[11px] text-neutral-700 font-medium">Transaksi Kas & Debit-Kredit</span>
+                    </button>
+                    <button
+                      onClick={() => handleApplyTablePreset('tsm')}
+                      className="neo-btn p-2 bg-orange-50 hover:bg-orange-100 border border-black rounded-lg text-left transition-all"
+                    >
+                      <span className="text-[10px] font-black uppercase text-orange-900 block">TSM (Otomotif)</span>
+                      <span className="text-[11px] text-neutral-700 font-medium">Pengukuran Aki, Spul & Multitester</span>
+                    </button>
+                    <button
+                      onClick={() => handleApplyTablePreset('rpl')}
+                      className="neo-btn p-2 bg-indigo-50 hover:bg-indigo-100 border border-black rounded-lg text-left transition-all"
+                    >
+                      <span className="text-[10px] font-black uppercase text-indigo-900 block">RPL / PPLG</span>
+                      <span className="text-[11px] text-neutral-700 font-medium">Pengujian API & State UI</span>
+                    </button>
+                    <button
+                      onClick={() => handleApplyTablePreset('umum')}
+                      className="neo-btn p-2 bg-teal-50 hover:bg-teal-100 border border-black rounded-lg text-left transition-all"
+                    >
+                      <span className="text-[10px] font-black uppercase text-teal-900 block">Mapel Umum</span>
+                      <span className="text-[11px] text-neutral-700 font-medium">Analisis Teks & Kasus Logis</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Form Ubah Manual Tabel Eksplorasi */}
+              <div className="border-2 border-black rounded-xl overflow-hidden bg-white shadow-[3px_3px_0px_#000]">
+                <div className="bg-neutral-100 p-2.5 border-b border-black font-black text-xs uppercase flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Table className="w-4 h-4 text-neutral-800" />
+                    <span>Ubah Manual Tabel Eksplorasi (Judul, Header & Baris)</span>
+                  </div>
+                  <span className="text-[10px] font-mono bg-white px-2 py-0.5 rounded border border-neutral-300">
+                    {currentTable.data.length} Baris Data
+                  </span>
+                </div>
+
+                <div className="p-4 space-y-4">
+                  {/* Judul Tabel */}
+                  <div>
+                    <label className="text-xs font-bold text-neutral-800 block mb-1">
+                      Judul Header Tabel Hasil Eksplorasi:
+                    </label>
+                    <input
+                      type="text"
+                      value={currentTable.judul}
+                      onChange={(e) => handleUpdateTableMeta(e.target.value)}
+                      placeholder="Contoh: Tabel Hasil Eksplorasi Data & Parameter..."
+                      className="w-full px-3 py-2 border border-black rounded-lg text-xs bg-white font-bold"
+                    />
+                  </div>
+
+                  {/* Header Kolom 1 & Kolom 2 */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-neutral-800 block mb-1">
+                        Label Header Kolom 1:
+                      </label>
+                      <input
+                        type="text"
+                        value={currentTable.kolom[0]}
+                        onChange={(e) => handleUpdateTableMeta(undefined, e.target.value)}
+                        placeholder="Contoh: Parameter / Kondisi Pengamatan"
+                        className="w-full px-3 py-2 border border-black rounded-lg text-xs bg-white font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-neutral-800 block mb-1">
+                        Label Header Kolom 2:
+                      </label>
+                      <input
+                        type="text"
+                        value={currentTable.kolom[1]}
+                        onChange={(e) => handleUpdateTableMeta(undefined, undefined, e.target.value)}
+                        placeholder="Contoh: Hasil Analisis & Rekomendasi Solusi"
+                        className="w-full px-3 py-2 border border-black rounded-lg text-xs bg-white font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Dynamic Rows Editor */}
+                  <div className="space-y-2 pt-2">
+                    <label className="text-xs font-black uppercase text-neutral-800 flex items-center justify-between">
+                      <span>Daftar Baris Data Pengamatan:</span>
+                      <button
+                        onClick={handleAddTableRow}
+                        className="neo-btn px-2.5 py-1 bg-amber-300 hover:bg-amber-200 text-black text-[11px] font-bold rounded-md border border-black flex items-center gap-1 shadow-[1px_1px_0px_#000]"
+                      >
+                        <Plus className="w-3 h-3" />
+                        <span>Tambah Baris Baru</span>
+                      </button>
+                    </label>
+
+                    <div className="border border-black rounded-lg overflow-hidden">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="bg-neutral-100 border-b border-black text-left font-bold">
+                            <th className="p-2 border-r border-black w-10 text-center">No</th>
+                            <th className="p-2 border-r border-black w-1/2">{currentTable.kolom[0]}</th>
+                            <th className="p-2 border-r border-black w-1/2">{currentTable.kolom[1]}</th>
+                            <th className="p-2 w-12 text-center">Aksi</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-neutral-200 bg-white">
+                          {currentTable.data.map((row, rIdx) => (
+                            <tr key={rIdx}>
+                              <td className="p-2 border-r border-neutral-300 text-center font-mono font-bold text-neutral-500">
+                                {rIdx + 1}
+                              </td>
+                              <td className="p-1.5 border-r border-neutral-300">
+                                <textarea
+                                  rows={2}
+                                  value={row[0]}
+                                  onChange={(e) => handleUpdateTableRow(rIdx, 0, e.target.value)}
+                                  placeholder="Isi kolom 1..."
+                                  className="w-full p-1.5 border border-neutral-300 rounded text-xs leading-snug font-mono focus:border-black"
+                                />
+                              </td>
+                              <td className="p-1.5 border-r border-neutral-300">
+                                <textarea
+                                  rows={2}
+                                  value={row[1]}
+                                  onChange={(e) => handleUpdateTableRow(rIdx, 1, e.target.value)}
+                                  placeholder="Isi kolom 2..."
+                                  className="w-full p-1.5 border border-neutral-300 rounded text-xs leading-snug font-mono focus:border-black"
+                                />
+                              </td>
+                              <td className="p-2 text-center align-middle">
+                                <button
+                                  onClick={() => handleRemoveTableRow(rIdx)}
+                                  className="p-1.5 text-neutral-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-all"
+                                  title="Hapus baris ini"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Live Visual Preview of Table */}
+                  <div className="pt-3 border-t border-neutral-200">
+                    <span className="text-[11px] font-bold text-neutral-600 block mb-1.5">
+                      👁️ Pratinjau Tampilan Tabel di Dokumen RPP Resmi:
+                    </span>
+                    <div className="border border-black max-w-xl mx-auto bg-white shadow-sm">
+                      <div className="bg-amber-100 font-bold p-1.5 border-b border-black text-[11px] text-center">
+                        {currentTable.judul}
+                      </div>
+                      <table className="w-full text-center text-[11px]">
+                        <thead>
+                          <tr className="bg-neutral-100 border-b border-black font-bold">
+                            <th className="p-1 border-r border-black w-1/2">{currentTable.kolom[0]}</th>
+                            <th className="p-1 w-1/2">{currentTable.kolom[1]}</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-neutral-200">
+                          {currentTable.data.map(([c1, c2], i) => (
+                            <tr key={i}>
+                              <td className="p-1 border-r border-neutral-300 font-mono text-[10px]">{c1 || '-'}</td>
+                              <td className="p-1 font-mono text-[10px]">{c2 || '-'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: ASESMEN & EVALUASI */}
           {activeTab === 'asesmen' && (
             <div className="space-y-6 animate-in fade-in duration-150">
               <div className="border-2 border-black rounded-xl overflow-hidden bg-white shadow-[3px_3px_0px_#000]">

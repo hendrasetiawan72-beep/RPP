@@ -40,11 +40,18 @@ export interface ExcelRppRawRow {
   asesmenProses?: string; // Asesmen Proses / Formatif (Diskusi, Presentasi, Unjuk Kerja)
   asesmenAkhir?: string; // Asesmen Akhir / Sumatif (LKPD, Proyek, Uji Teori/Praktik)
   pengayaanRemedial?: string; // Program pengayaan dan bimbingan remedial
+  tabelEksplorasi?: string; // Format teks tabel eksplorasi pengamatan dalam RPP (diubah via Excel / manual)
+  tautanMateri?: string; // Link bahan ajar yang bisa dibuka via hyperlink di PDF
+  embedMateri?: string; // Kode embed HTML / script bahan ajar multimedia
+  tautanLkpd?: string; // Link LKPD yang bisa dibuka via hyperlink di PDF
+  embedLkpd?: string; // Kode embed HTML / iframe LKPD interaktif
+  embedRubrik?: string; // Kode embed rubrik penilaian
 }
 
 export interface ParsedExcelResult {
-  fileType: 'cp' | 'rpp';
+  fileType: 'cp' | 'rpp' | 'atp';
   cpRows: ExcelRawRow[];
+  atpRows?: ExcelRawRow[];
   rppRows?: ExcelRppRawRow[];
   detectedSubject?: string;
   detectedClass?: string;

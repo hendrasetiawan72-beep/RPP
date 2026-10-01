@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Sparkles, Wand2, Check, RefreshCw } from 'lucide-react';
+import { X, Wand2, Check, RefreshCw } from 'lucide-react';
 import { ModulAjarData, SchoolIdentity } from '../types';
 
 interface AiRefineModalProps {
@@ -41,7 +41,7 @@ export const AiRefineModal: React.FC<AiRefineModalProps> = ({
         updated.komponenInti.deepLearningApproach.joyfulLearning.metodeInteraktif = [
           'Troubleshooting Speedrun: Simulasi kompetisi kelompok memecahkan teka-teki gangguan teknis tercepat.',
           'Sistem Badging: Siswa mengumpulkan badge "Master Presisi", "Safety Champion", dan "Best Collaborator".',
-          'Pameran mini (Gallery Walk) dengan stiker apresiasi bintang dari rekan sekelas.',
+          'Pameran mini (Gallery Walk) dengan stiker apresiasi apresiatif dari rekan sekelas.',
         ];
       } else if (type === 'mindfulness_safety') {
         updated.komponenInti.deepLearningApproach.mindfulLearning.aktivitas = [
@@ -109,7 +109,7 @@ export const AiRefineModal: React.FC<AiRefineModalProps> = ({
 
         <div className="flex items-center gap-2.5 mb-4 pb-3 border-b-2 border-black">
           <div className="w-9 h-9 rounded-xl bg-rose-400 border-2 border-black flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-black" />
+            <Wand2 className="w-5 h-5 text-black" />
           </div>
           <div>
             <h3 className="font-display font-black text-xl text-neutral-900">

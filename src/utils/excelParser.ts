@@ -106,8 +106,13 @@ export async function parseExcelFile(file: File): Promise<ParsedExcelResult> {
               else if (key.includes('penutup') || key.includes('refleksi321') || key.includes('kaizen')) colMap['sintaksPenutup'] = idx;
               else if (key.includes('asesmenawal') || key.includes('diagnostik')) colMap['asesmenAwal'] = idx;
               else if (key.includes('asesmenproses') || key.includes('formatif') || key.includes('unjukkerja')) colMap['asesmenProses'] = idx;
-              else if (key.includes('asesmenakhir') || key.includes('sumatif') || key.includes('proyek')) colMap['asesmenAkhir'] = idx;
               else if (key.includes('pengayaan') || key.includes('remedial')) colMap['pengayaan'] = idx;
+              else if (key.includes('tabeleksplorasi') || key.includes('hasileksplorasi') || key.includes('eksplorasi') || key.includes('datapengamatan')) colMap['tabelEksplorasi'] = idx;
+              else if (key.includes('tautanmateri') || key.includes('linkmateri')) colMap['tautanMateri'] = idx;
+              else if (key.includes('embedmateri') || key.includes('scriptmateri') || key.includes('htmlmateri')) colMap['embedMateri'] = idx;
+              else if (key.includes('tautanlkpd') || key.includes('linklkpd')) colMap['tautanLkpd'] = idx;
+              else if (key.includes('embedlkpd') || key.includes('scriptlkpd') || key.includes('htmllkpd')) colMap['embedLkpd'] = idx;
+              else if (key.includes('embedrubrik') || key.includes('rubrikembed')) colMap['embedRubrik'] = idx;
             });
             break;
           }
@@ -198,6 +203,12 @@ export async function parseExcelFile(file: File): Promise<ParsedExcelResult> {
           const asesmenProsesVal = colMap['asesmenProses'] !== undefined ? String(row[colMap['asesmenProses']] || '').trim() : '';
           const asesmenAkhirVal = colMap['asesmenAkhir'] !== undefined ? String(row[colMap['asesmenAkhir']] || '').trim() : '';
           const pengayaanVal = colMap['pengayaan'] !== undefined ? String(row[colMap['pengayaan']] || '').trim() : '';
+          const tabelEksplorasiVal = colMap['tabelEksplorasi'] !== undefined ? String(row[colMap['tabelEksplorasi']] || '').trim() : '';
+          const tautanMateriVal = colMap['tautanMateri'] !== undefined ? String(row[colMap['tautanMateri']] || '').trim() : '';
+          const embedMateriVal = colMap['embedMateri'] !== undefined ? String(row[colMap['embedMateri']] || '').trim() : '';
+          const tautanLkpdVal = colMap['tautanLkpd'] !== undefined ? String(row[colMap['tautanLkpd']] || '').trim() : '';
+          const embedLkpdVal = colMap['embedLkpd'] !== undefined ? String(row[colMap['embedLkpd']] || '').trim() : '';
+          const embedRubrikVal = colMap['embedRubrik'] !== undefined ? String(row[colMap['embedRubrik']] || '').trim() : '';
 
           // Skip purely blank or explanatory rows
           if (!elemenVal && !cpVal && !materiVal && !tpVal) continue;
@@ -248,6 +259,12 @@ export async function parseExcelFile(file: File): Promise<ParsedExcelResult> {
               asesmenProses: asesmenProsesVal,
               asesmenAkhir: asesmenAkhirVal,
               pengayaanRemedial: pengayaanVal,
+              tabelEksplorasi: tabelEksplorasiVal,
+              tautanMateri: tautanMateriVal,
+              embedMateri: embedMateriVal,
+              tautanLkpd: tautanLkpdVal,
+              embedLkpd: embedLkpdVal,
+              embedRubrik: embedRubrikVal,
             });
           }
         }
@@ -276,10 +293,10 @@ export async function parseExcelFile(file: File): Promise<ParsedExcelResult> {
 }
 
 /**
- * 1. DOWNLOAD TEMPLATE FORMAT EXCEL CP (Capaian Pembelajaran)
- * Format sederhana untuk guru memasukkan Elemen, CP, Materi, JP, Fase, Kelas, dan Semester.
+ * 1. DOWNLOAD TEMPLATE FORMAT EXCEL ATP (Alur Tujuan Pembelajaran)
+ * Format standar resmi bagi guru memasukkan Elemen, CP, ATP/TP, Materi, JP, Fase, Kelas, dan Semester.
  */
-export function downloadCpExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = 'kejuruan') {
+export function downloadAtpExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = 'kejuruan') {
   const wb = XLSX.utils.book_new();
 
   let templateTitle = '';
@@ -287,13 +304,15 @@ export function downloadCpExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = 'k
   let sampleDataRows: any[][] = [];
 
   if (type === 'umum') {
-    templateTitle = 'FORMAT EXCEL CP MAPEL NORMATIF-ADAPTIF / UMUM - SMK MUHAMMADIYAH BAWANG, BATANG';
-    filename = 'Template_CP_Mapel_Umum_SMK_Muhammadiyah_Bawang.xlsx';
+    templateTitle = 'FORMAT EXCEL ATP MAPEL NORMATIF-ADAPTIF / UMUM - SMK MUHAMMADIYAH BAWANG, BATANG';
+    filename = 'Template_ATP_Mapel_Umum_SMK_Muhammadiyah_Bawang.xlsx';
     sampleDataRows = [
       [
         1,
         'Menyimak dan Berbicara (Listening & Speaking)',
         'Pada akhir fase F, peserta didik mampu menggunakan bahasa Inggris untuk berkomunikasi dalam situasi kerja dan sosial, menangani pertanyaan pelanggan (handling inquiries & complaints), berpartisipasi dalam diskusi kelompok kerja, serta melakukan presentasi proyek kejuruan dengan percaya diri.',
+        '1. Menganalisis frasa profesional dalam menangani keluhan pelanggan.\n2. Mensimulasikan percakapan kerja dengan percaya diri dan santun.',
+        'Tahap 1: Video simulasi, Tahap 2: Analisis frasa kunci, Tahap 3: Roleplay berpasangan, Tahap 4: Refleksi 3-2-1',
         'Workplace Conversations, Asking & Giving Opinions, Handling Inquiries and Complaints, Job Interview Simulation',
         16,
         'Fase F',
@@ -305,6 +324,8 @@ export function downloadCpExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = 'k
         2,
         'Membaca dan Memirsa (Reading & Viewing)',
         'Pada akhir fase F, peserta didik mampu memahami, menganalisis, dan mengevaluasi teks informatif, manual instruksi teknis (Technical Operating Manuals / SOP), email bisnis, serta artikel industri berbahasa Inggris secara tepat.',
+        '1. Menelaah manual operasional mesin dan SOP industri berbahasa Inggris.\n2. Menemukan informasi rinci dalam korespondensi bisnis digital.',
+        'Tahap 1: Skimming & scanning manual, Tahap 2: Glosarium istilah teknis, Tahap 3: Diskusi kelompok, Tahap 4: Presentasi temuan',
         'Reading Technical Specifications & User Manuals, Understanding Business Emails, Procedural Text in Vocational Context',
         14,
         'Fase F',
@@ -316,6 +337,8 @@ export function downloadCpExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = 'k
         3,
         'Menulis dan Mempresentasikan (Writing & Presenting)',
         'Pada akhir fase F, peserta didik mampu memproduksi teks tertulis resmi seperti surat lamaran kerja (Application Letter), resume / Curriculum Vitae (CV), laporan hasil pekerjaan (Work Progress Report), serta mempresentasikannya dengan percaya diri.',
+        '1. Menyusun curriculum vitae (CV) dan surat lamaran kerja profesional.\n2. Mempresentasikan portofolio kejuruan dalam bahasa Inggris dengan percaya diri.',
+        'Tahap 1: Analisis format standar internasional, Tahap 2: Drafting resume, Tahap 3: Peer review, Tahap 4: Presentasi pitch deck',
         'Drafting Professional CV & Cover Letter, Work Report Summaries, Project Presentation Pitch Deck',
         12,
         'Fase F',
@@ -325,21 +348,23 @@ export function downloadCpExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = 'k
       ],
     ];
   } else if (type === 'blank') {
-    templateTitle = 'FORMAT EXCEL CP KOSONG SIAP INPUT - SMK MUHAMMADIYAH BAWANG, BATANG';
-    filename = 'Format_CP_Kosong_SMK_Muhammadiyah_Bawang.xlsx';
+    templateTitle = 'FORMAT EXCEL ATP KOSONG SIAP INPUT - SMK MUHAMMADIYAH BAWANG, BATANG';
+    filename = 'Format_ATP_Kosong_SMK_Muhammadiyah_Bawang.xlsx';
     sampleDataRows = [
-      [1, '', '', '', 18, 'F', 'XI', '1 (Ganjil)', ''],
-      [2, '', '', '', 18, 'F', 'XI', '1 (Ganjil)', ''],
-      [3, '', '', '', 18, 'F', 'XI', '1 (Ganjil)', ''],
+      [1, '', '', '', '', '', 18, 'F', 'XI', '1 (Ganjil)', ''],
+      [2, '', '', '', '', '', 18, 'F', 'XI', '1 (Ganjil)', ''],
+      [3, '', '', '', '', '', 18, 'F', 'XI', '1 (Ganjil)', ''],
     ];
   } else {
-    templateTitle = 'FORMAT EXCEL CP MAPEL KEJURUAN (AKL & TSM) - SMK MUHAMMADIYAH BAWANG, BATANG';
-    filename = 'Template_CP_Kejuruan_AKL_TSM_SMK_Muhammadiyah_Bawang.xlsx';
+    templateTitle = 'FORMAT EXCEL ATP MAPEL KEJURUAN (AKL & TSM) - SMK MUHAMMADIYAH BAWANG, BATANG';
+    filename = 'Template_ATP_Kejuruan_AKL_TSM_SMK_Muhammadiyah_Bawang.xlsx';
     sampleDataRows = [
       [
         1,
         'Praktikum Akuntansi Perusahaan Jasa dan Dagang',
         'Pada akhir fase F, peserta didik mampu menganalisis dokumen sumber dan pendukung transaksi keuangan, mencatat transaksi ke jurnal khusus dan umum, memposting ke buku besar utama dan pembantu, menyusun neraca lajur, serta menyusun laporan keuangan laba rugi, perubahan ekuitas, neraca, dan arus kas.',
+        '1. Menganalisis bukti transaksi keuangan perusahaan dagang secara teliti.\n2. Mengentri transaksi ke dalam jurnal khusus dan memposting ke buku besar utama dan pembantu.',
+        'Tahap 1: Telaah bukti transaksi, Tahap 2: Pencatatan jurnal khusus, Tahap 3: Posting buku besar, Tahap 4: Penyusunan neraca saldo',
         'Analisis Bukti Transaksi, Jurnal Khusus & Umum, Buku Besar Pembantu, Neraca Lajur 10 Kolom, Laporan Keuangan SAK EMKM',
         24,
         'Fase F',
@@ -351,6 +376,8 @@ export function downloadCpExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = 'k
         2,
         'Komputer Akuntansi (Spreadsheet & Software Akuntansi)',
         'Pada akhir fase F, peserta didik mampu mengoperasikan aplikasi komputer akuntansi dan spreadsheet untuk membuat data baru perusahaan, menyusun bagan akun (Chart of Accounts), mengelola kartu piutang/utang, mengentri saldo awal dan transaksi penyesuaian, serta mencetak laporan keuangan digital.',
+        '1. Melakukan setup data awal perusahaan dan bagan akun pada aplikasi akuntansi.\n2. Mengentri transaksi pembelian, penjualan, dan rekonsiliasi kas bank secara digital.',
+        'Tahap 1: Pengenalan interface, Tahap 2: Setup file perusahaan baru, Tahap 3: Entri transaksi, Tahap 4: Cetak laporan digital',
         'Setup Data Awal Perusahaan, Bagan Akun (COA), Entri Transaksi Pembelian & Penjualan, Rekonsiliasi Bank, Laporan Digital',
         18,
         'Fase F',
@@ -362,6 +389,8 @@ export function downloadCpExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = 'k
         3,
         'Akuntansi Lembaga / Instansi Pemerintah & Perpajakan',
         'Pada akhir fase F, peserta didik mampu memahami struktur akuntansi keuangan lembaga pemerintah, pencatatan transaksi anggaran pendapatan dan belanja daerah (APBD), serta menghitung dan menyusun formulir surat pemberitahuan (SPT) pajak PPh Pasal 21 dan PPN.',
+        '1. Menelaah struktur dokumen APBD dan akun belanja modal pemerintah daerah.\n2. Menghitung PPh Pasal 21 pegawai dan mengisi formulir SPT masa pajak secara cermat.',
+        'Tahap 1: Analisis dokumen APBD, Tahap 2: Perhitungan PTKP & tarif progresif, Tahap 3: Simulasi pengisian SPT, Tahap 4: Diskusi kepatuhan pajak',
         'Struktur APBD, Jurnal Akuntansi Lembaga, Perhitungan PPh Pasal 21 & PPN, Pengisian Formulir SPT Pajak',
         12,
         'Fase F',
@@ -374,10 +403,10 @@ export function downloadCpExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = 'k
 
   const templateData = [
     [templateTitle],
-    ['PETUNJUK: Isi Elemen, Capaian Pembelajaran (CP), Lingkup Materi / Topik, Alokasi Jam Pelajaran (JP), dan Lintas Disiplin Ilmu.'],
+    ['PETUNJUK: Isi Elemen, Capaian Pembelajaran (CP), Alur & Tujuan Pembelajaran (ATP/TP), Lingkup Materi / Topik, Alokasi Waktu (JP), dan Lintas Disiplin.'],
     ['Sistem akan secara otomatis menyusun matriks ATP dan mendistribusikannya ke lembar RPP terpisah.'],
     [],
-    ['No', 'Elemen', 'Capaian Pembelajaran (CP)', 'Lingkup Materi / Topik', 'Alokasi Waktu (JP)', 'Fase', 'Kelas', 'Semester', 'Lintas Disiplin Ilmu'],
+    ['No', 'Elemen', 'Capaian Pembelajaran (CP)', 'Alur & Tujuan Pembelajaran (ATP / TP)', 'Tahapan Alur Pembelajaran', 'Lingkup Materi / Topik', 'Alokasi Waktu (JP)', 'Fase', 'Kelas', 'Semester', 'Lintas Disiplin Ilmu'],
     ...sampleDataRows,
   ];
 
@@ -387,6 +416,8 @@ export function downloadCpExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = 'k
     { wch: 6 },
     { wch: 32 },
     { wch: 55 },
+    { wch: 45 },
+    { wch: 35 },
     { wch: 40 },
     { wch: 18 },
     { wch: 10 },
@@ -395,9 +426,12 @@ export function downloadCpExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = 'k
     { wch: 35 },
   ];
 
-  XLSX.utils.book_append_sheet(wb, ws, 'Format_CP_SMK_Bawang');
+  XLSX.utils.book_append_sheet(wb, ws, 'Format_ATP_SMK_Bawang');
   XLSX.writeFile(wb, filename);
 }
+
+// Alias untuk kompatibilitas ke belakang
+export const downloadCpExcelTemplate = downloadAtpExcelTemplate;
 
 /**
  * 2. DOWNLOAD TEMPLATE FORMAT EXCEL RPP TERINTEGRASI (Semua Kolom Lengkap)
@@ -441,6 +475,12 @@ export function downloadRppExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = '
         'Formatif: Observasi keaktifan diskusi, rubrik penilaian pelafalan (pronunciation), kelancaran (fluency), dan kesopanan saat roleplay.',
         'Sumatif: Unjuk kerja rekaman video roleplay skenario penanganan komplain pelanggan (LKPD 1) dan tes tertulis pemahaman teks.',
         'Pengayaan: Penugasan menyusun naskah simulasi wawancara kerja (Job Interview). Remedial: Bimbingan pelafalan frasa dasar dengan pendampingan teman sebaya.',
+        'Tabel Analisis Ungkapan Komplain :: Situasi Kasus Komplain | Ungkapan Standar SOP Penanganan :: Barang Rusak Saat Pengiriman | We sincerely apologize for the inconvenience and will replace it immediately ; Keterlambatan Pengiriman | Let me check your tracking number and expedite the delivery ; Kesalahan Jumlah Pesanan | We will dispatch the remaining items at no additional cost',
+        'https://guru.kemdikbud.go.id/',
+        '<iframe width="100%" height="380" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>',
+        'https://docs.google.com/document/d/1sample-lkpd-bahasa-inggris/preview',
+        '<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSc_sample/viewform?embedded=true" width="100%" height="480"></iframe>',
+        '<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSc_rubrik/viewform?embedded=true" width="100%" height="480"></iframe>',
       ],
     ];
   } else if (type === 'blank') {
@@ -451,7 +491,7 @@ export function downloadRppExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = '
         1, '', '', '', '', '', 12, 'F', 'XI', '1 (Ganjil)',
         '', '', '', 'Bernalar Kritis, Kreativitas, Kolaborasi, Kemandirian',
         'Problem-Based Learning (PBL)', '', '', 'Google Classroom',
-        '', '', '', '', '', '', '', '',
+        '', '', '', '', '', '', '', '', '', '', '', '', '', '',
       ],
     ];
   } else {
@@ -485,6 +525,12 @@ export function downloadRppExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = '
         'Asesmen Formatif: Lembar observasi diskusi kelompok, rubrik keterampilan analisis bukti transaksi, dan ketepatan entri jurnal khusus.',
         'Asesmen Sumatif: Penilaian hasil lembar kerja job sheet (LKPD 1) pencatatan 15 transaksi komprehensif ke jurnal khusus dan tes formatif tertulis.',
         'Pengayaan: Penugasan entri bukti transaksi penyesuaian (adjusting entries) ke spreadsheet mandiri. Remedial: Pendampingan analisis debet-kredit dengan kartu bantu akun.',
+        'Tabel Rekapitulasi Bukti Transaksi :: Jenis Bukti Transaksi | Akun Debet / Kredit Terkait :: Faktur Penjualan No. F-01 | Piutang Dagang (D) / Penjualan (K) ; Bukti Kas Masuk No. BKM-01 | Kas di Bank (D) / Piutang Dagang (K) ; Nota Kontan Pembelian | Persediaan Barang (D) / Kas (K)',
+        'https://guru.kemdikbud.go.id/',
+        '<iframe width="100%" height="380" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>',
+        'https://docs.google.com/document/d/1sample-lkpd-akuntansi/preview',
+        '<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSc_sample/viewform?embedded=true" width="100%" height="480"></iframe>',
+        '<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSc_rubrik/viewform?embedded=true" width="100%" height="480"></iframe>',
       ],
       [
         2,
@@ -513,6 +559,12 @@ export function downloadRppExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = '
         'Asesmen Formatif: Observasi unjuk kerja proses di komputer lab, kecepatan setup akun, dan ketepatan konfigurasi link account.',
         'Asesmen Sumatif: Job Sheet praktik mandiri setup data awal perusahaan dan pembuatan laporan daftar akun digital.',
         'Pengayaan: Penugasan kustomisasi format laporan neraca dan laba rugi ke bentuk PDF siap cetak. Remedial: Praktik ulang setup bagan akun dengan panduan modul bergambar.',
+        'Tabel Bagan Akun Digital :: Kode Akun (COA) | Klasifikasi & Saldo Normal :: 1-1100 Kas di Bank | Harta Lancar (Debet) ; 1-1200 Piutang Dagang | Harta Lancar (Debet) ; 2-1100 Utang Dagang | Kewajiban Lancar (Kredit)',
+        'https://guru.kemdikbud.go.id/',
+        '<iframe width="100%" height="380" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>',
+        'https://docs.google.com/document/d/1sample-lkpd-komputer-akuntansi/preview',
+        '<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSc_sample/viewform?embedded=true" width="100%" height="480"></iframe>',
+        '<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSc_rubrik/viewform?embedded=true" width="100%" height="480"></iframe>',
       ],
     ];
   }
@@ -544,6 +596,12 @@ export function downloadRppExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = '
     'Asesmen Proses (Formatif - Diskusi / Presentasi / Unjuk Kerja)',
     'Asesmen Akhir (Sumatif - Job Sheet / Proyek / LKPD)',
     'Pengayaan dan Remedial',
+    'Tabel Hasil Eksplorasi (Judul :: Kolom1 | Kolom2 :: Data)',
+    'Tautan Materi (Hyperlink)',
+    'Kode Embed Materi (HTML / Script)',
+    'Tautan LKPD (Hyperlink)',
+    'Kode Embed LKPD (HTML / Iframe)',
+    'Kode Embed Rubrik (HTML)',
   ];
 
   const templateData = [
@@ -752,4 +810,115 @@ export function exportRppToExcel(modulList: ModulAjarData[], identity: SchoolIde
   XLSX.utils.book_append_sheet(wb, ws, 'RPP_DeepLearning');
   const safeSubject = identity.mataPelajaran.replace(/[^a-zA-Z0-9]/g, '_');
   XLSX.writeFile(wb, `RPP_DeepLearning_${safeSubject}_SMK_Muhammadiyah_Bawang.xlsx`);
+}
+
+/**
+ * Unduh template Excel (.xlsx) khusus untuk Tabel Hasil Eksplorasi RPP
+ */
+export function downloadTabelEksplorasiTemplate(
+  judul: string = 'Tabel Hasil Eksplorasi Data & Parameter',
+  kolom1: string = 'Parameter / Kondisi Pengamatan',
+  kolom2: string = 'Hasil Analisis & Tindakan Perbaikan',
+  sampleRows: [string, string][] = [
+    ['Pengukuran / Transaksi 1', 'Hasil Analisis & Rekomendasi 1'],
+    ['Pengukuran / Transaksi 2', 'Hasil Analisis & Rekomendasi 2'],
+    ['Pengukuran / Transaksi 3', 'Hasil Analisis & Rekomendasi 3'],
+  ]
+) {
+  const wb = XLSX.utils.book_new();
+  const sheetData = [
+    ['TABEL HASIL EKSPLORASI PENGAMATAN RPP DEEP LEARNING'],
+    [`Judul Tabel: ${judul}`],
+    [],
+    [kolom1, kolom2],
+    ...sampleRows,
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(sheetData);
+  ws['!cols'] = [{ wch: 35 }, { wch: 45 }];
+  XLSX.utils.book_append_sheet(wb, ws, 'Tabel_Eksplorasi');
+  const safeTitle = judul.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 30);
+  XLSX.writeFile(wb, `Template_Tabel_Eksplorasi_${safeTitle}.xlsx`);
+}
+
+/**
+ * Parse an uploaded Excel/CSV file into Tabel Eksplorasi structure:
+ * { judul: string, kolom: [string, string], data: [string, string][] }
+ */
+export async function parseTabelEksplorasiFile(file: File): Promise<{
+  judul: string;
+  kolom: [string, string];
+  data: [string, string][];
+}> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = e.target?.result;
+        const workbook = XLSX.read(data, { type: 'binary' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const rawAoA: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        if (!rawAoA || rawAoA.length === 0) {
+          throw new Error('File Excel tabel eksplorasi kosong.');
+        }
+
+        let detectedJudul = 'Tabel Hasil Eksplorasi Pengamatan Murid';
+        let headerRowIndex = -1;
+        let col1 = 'Parameter / Kondisi Pengamatan';
+        let col2 = 'Hasil Analisis & Rekomendasi';
+
+        for (let r = 0; r < Math.min(rawAoA.length, 10); r++) {
+          const row = rawAoA[r];
+          if (!Array.isArray(row)) continue;
+          const firstCell = String(row[0] || '').trim();
+          if (firstCell.toLowerCase().includes('judul') || firstCell.toLowerCase().includes('tabel')) {
+            const split = firstCell.split(':');
+            if (split.length > 1 && split[1].trim()) {
+              detectedJudul = split[1].trim();
+            } else if (firstCell.length > 5) {
+              detectedJudul = firstCell;
+            }
+          }
+          // Detect header row when there are 2 columns filled
+          if (row.length >= 2 && row[0] && row[1]) {
+            const c0 = String(row[0]).trim();
+            const c1 = String(row[1]).trim();
+            if (!c0.toLowerCase().includes('rekapitulasi') && !c0.toLowerCase().includes('tabel hasil eksplorasi pengamatan rpp')) {
+              headerRowIndex = r;
+              col1 = c0;
+              col2 = c1;
+              break;
+            }
+          }
+        }
+
+        const dataRows: [string, string][] = [];
+        const startRow = headerRowIndex !== -1 ? headerRowIndex + 1 : 0;
+        for (let r = startRow; r < rawAoA.length; r++) {
+          const row = rawAoA[r];
+          if (!Array.isArray(row) || row.length === 0) continue;
+          const val1 = String(row[0] !== undefined ? row[0] : '').trim();
+          const val2 = String(row[1] !== undefined ? row[1] : '').trim();
+          if (val1 || val2) {
+            dataRows.push([val1, val2]);
+          }
+        }
+
+        if (dataRows.length === 0) {
+          throw new Error('Tidak ditemukan baris data pada file Excel tabel eksplorasi.');
+        }
+
+        resolve({
+          judul: detectedJudul,
+          kolom: [col1, col2],
+          data: dataRows,
+        });
+      } catch (err: any) {
+        reject(err);
+      }
+    };
+    reader.onerror = (err) => reject(err);
+    reader.readAsBinaryString(file);
+  });
 }

@@ -13,6 +13,7 @@ interface HeaderNavProps {
   documentMode: 'atp_only' | 'modul_selected' | 'lampiran_selected' | 'modul_all' | 'both_separate';
   setDocumentMode: (mode: 'atp_only' | 'modul_selected' | 'lampiran_selected' | 'modul_all' | 'both_separate') => void;
   onOpenRppEditor?: () => void;
+  onOpenExcelGuideModal?: () => void;
 }
 
 export const HeaderNav: React.FC<HeaderNavProps> = ({
@@ -27,6 +28,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   documentMode,
   setDocumentMode,
   onOpenRppEditor,
+  onOpenExcelGuideModal,
 }) => {
   const handlePrint = (mode?: 'atp_only' | 'modul_selected' | 'lampiran_selected' | 'modul_all' | 'both_separate') => {
     if (mode && mode !== documentMode) {
@@ -108,7 +110,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               title="Unduh Template Excel CP Dasar"
             >
               <Download className="w-3.5 h-3.5 text-amber-800" />
-              <span>Template CP (.xlsx)</span>
+              <span>Template ATP (.xlsx)</span>
             </button>
           </div>
 
@@ -158,6 +160,17 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             <Wand2 className="w-3.5 h-3.5 text-rose-700" />
             <span>AI Refiner</span>
           </button>
+
+          {onOpenExcelGuideModal && (
+            <button
+              onClick={onOpenExcelGuideModal}
+              className="neo-btn px-3 py-1.5 bg-emerald-200 hover:bg-emerald-300 text-black rounded-lg text-xs font-black flex items-center gap-1.5 shadow-[2px_2px_0px_#000]"
+              title="Panduan Skema Excel & Generator Prompt AI (CP ➔ ATP ➔ RPP)"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-800" />
+              <span>Panduan Excel & AI</span>
+            </button>
+          )}
 
           {/* Quick Print Dropdown / Actions */}
           <div className="flex items-center gap-1">

@@ -1,5 +1,4 @@
-import React from 'react';
-import { X, BookOpen, Brain, Compass, Sparkles, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { X, BookOpen, Brain, Compass, CheckCircle2, ShieldCheck } from 'lucide-react';
 
 interface GuidelineModalProps {
   isOpen: boolean;
