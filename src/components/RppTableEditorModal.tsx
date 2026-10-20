@@ -20,6 +20,7 @@ import {
   BookOpen,
 } from 'lucide-react';
 import { ModulAjarData, SchoolIdentity } from '../types';
+import { defaultLangkahKegiatanAwal, parseLangkahList } from '../utils/kegiatanAwal';
 import {
   DEEP_LEARNING_SYNTAX_OPTIONS,
   SyntaxOption,
@@ -133,6 +134,18 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
     updated.rppFormat.pengalamanBelajar.kegiatanInti.merefleksiBerkesadaranBermakna.penguatanKonsep =
       `Guru memberikan umpan balik formatif terstruktur, penguatan konsep esensial industri, serta apresiasi atas ketuntasan belajar murid. ${preset.catatanPenerapan.asesmen}`;
 
+    setEditedModul(updated);
+  };
+
+  // Kegiatan Awal: baris kosong dipertahankan selama mengetik agar tombol Enter tetap berfungsi;
+  // baris kosong dibuang otomatis saat cetak / ekspor.
+  const langkahAwalAktif: string[] = Array.isArray(langkah.kegiatanAwal?.langkah)
+    ? langkah.kegiatanAwal.langkah
+    : defaultLangkahKegiatanAwal(editedModul.judulMateri);
+
+  const setLangkahAwal = (daftar: string[]) => {
+    const updated = JSON.parse(JSON.stringify(editedModul)) as ModulAjarData;
+    updated.rppFormat.pengalamanBelajar.kegiatanAwal = { langkah: daftar };
     setEditedModul(updated);
   };
 
@@ -639,10 +652,50 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
 
               {/* Editor Manual Tabel Langkah Pembelajaran */}
               <div className="space-y-4">
+                {/* 0. Kegiatan Awal: daftar langkah bernomor */}
+                <div className="border-2 border-black rounded-xl overflow-hidden bg-white shadow-[2px_2px_0px_#000]">
+                  <div className="bg-emerald-100 p-2.5 border-b border-black font-black text-xs flex items-center justify-between">
+                    <span className="uppercase text-emerald-950">A. Kegiatan Awal (Berkesadaran & Bermakna)</span>
+                    <span className="text-[10px] font-mono">{langkahAwalAktif.filter((l) => l.trim().length > 0).length} langkah</span>
+                  </div>
+                  <div className="p-3 space-y-2">
+                    <label className="text-xs font-bold text-neutral-800 block">
+                      Langkah Kegiatan Awal (satu langkah per baris, nomor ditambahkan otomatis)
+                    </label>
+                    <textarea
+                      rows={6}
+                      value={langkahAwalAktif.join('\n')}
+                      onChange={(e) => setLangkahAwal(e.target.value.split('\n'))}
+                      placeholder={'Guru membuka pelajaran dengan salam, doa, dan menyapa murid.\nGuru memeriksa kehadiran siswa.\nGuru melakukan apersepsi dengan pertanyaan pemantik...'}
+                      className="w-full px-3 py-2 border border-black rounded-lg text-xs bg-white leading-relaxed font-mono"
+                    />
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setLangkahAwal(parseLangkahList(langkahAwalAktif.join('\n')))}
+                        className="neo-btn px-2.5 py-1 bg-emerald-300 hover:bg-emerald-200 text-black text-[11px] font-bold rounded border border-black shadow-[1px_1px_0px_#000]"
+                        title="Hapus nomor/bullet ganda dan baris kosong; pecah teks '1. ... 2. ...' menjadi baris terpisah"
+                      >
+                        Rapikan Nomor & Baris
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setLangkahAwal(defaultLangkahKegiatanAwal(editedModul.judulMateri))}
+                        className="neo-btn px-2.5 py-1 bg-white hover:bg-neutral-100 text-black text-[11px] font-bold rounded border border-black shadow-[1px_1px_0px_#000]"
+                      >
+                        Isi Langkah Bawaan
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-neutral-600 leading-snug">
+                      Bisa juga diisi lewat kolom "Kegiatan Awal" pada Excel RPP Terintegrasi; hasil unggahan masuk ke kotak ini dan tetap dapat diedit manual.
+                    </p>
+                  </div>
+                </div>
+
                 {/* 1. Kegiatan Inti: Memahami & Mengaplikasi */}
                 <div className="border-2 border-black rounded-xl overflow-hidden bg-white shadow-[2px_2px_0px_#000]">
                   <div className="bg-blue-100 p-2.5 border-b border-black font-black text-xs flex items-center justify-between">
-                    <span className="uppercase text-blue-950">A. Kegiatan Inti: Tahap Memahami & Mengaplikasi</span>
+                    <span className="uppercase text-blue-950">B. Kegiatan Inti: Tahap Memahami & Mengaplikasi</span>
                     <span className="text-[10px] font-mono">Bermakna & Menggembirakan</span>
                   </div>
                   <div className="p-3 space-y-3">
@@ -698,7 +751,7 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
                 {/* 2. Kegiatan Inti: Merefleksi */}
                 <div className="border-2 border-black rounded-xl overflow-hidden bg-white shadow-[2px_2px_0px_#000]">
                   <div className="bg-purple-100 p-2.5 border-b border-black font-black text-xs flex items-center justify-between">
-                    <span className="uppercase text-purple-950">B. Kegiatan Inti: Tahap Merefleksi (Berkesadaran & Bermakna)</span>
+                    <span className="uppercase text-purple-950">C. Kegiatan Inti: Tahap Merefleksi (Berkesadaran & Bermakna)</span>
                     <span className="text-[10px] font-mono">Evaluasi Proses & Kemitraan DUDI</span>
                   </div>
                   <div className="p-3 space-y-3">
@@ -734,7 +787,7 @@ export const RppTableEditorModal: React.FC<RppTableEditorModalProps> = ({
                 {/* 3. Kegiatan Penutup: Refleksi 3-2-1 */}
                 <div className="border-2 border-black rounded-xl overflow-hidden bg-white shadow-[2px_2px_0px_#000]">
                   <div className="bg-rose-100 p-2.5 border-b border-black font-black text-xs flex items-center justify-between">
-                    <span className="uppercase text-rose-950">C. Kegiatan Penutup: Refleksi 3-2-1 & Tindak Lanjut</span>
+                    <span className="uppercase text-rose-950">D. Kegiatan Penutup: Refleksi 3-2-1 & Tindak Lanjut</span>
                     <span className="text-[10px] font-mono">15 Menit</span>
                   </div>
                   <div className="p-3 space-y-3">
