@@ -133,7 +133,7 @@ export const ExcelUploadZone: React.FC<ExcelUploadZoneProps> = ({
       metodePembelajaran: 'Problem-Based Learning (PBL)',
       kemitraan: 'Mitra DUDI Rekanan Batang & Pendampingan Orang Tua',
       lingkunganDigital: 'Ruang Fisik standar 5S, Google Classroom, dan Platform Kolaborasi Digital',
-      sintaksPendahuluan: 'Mindful Learning: Doa, cek kesiapan emosional & fisik, penayangan fenomena nyata pemantik nalar kritis.',
+      sintaksPendahuluan: '1. Guru membuka pelajaran dengan salam, doa, dan menyapa murid.\n2. Guru memeriksa kehadiran dan kesiapan belajar murid.\n3. Guru menayangkan fenomena nyata sebagai pemantik nalar kritis (apersepsi).\n4. Guru menyampaikan tujuan pembelajaran dan aktivitas yang akan dilakukan.',
       sintaksInti1: 'Meaningful Learning: Diskusi kelompok analisis data kasus kontekstual dan identifikasi parameter kerja.',
       sintaksInti2: 'Joyful Learning: Praktik unjuk kerja hands-on kelompok, simulasi operasional, dan presentasi hasil temuan.',
       sintaksPenutup: 'Refleksi 3-2-1 & Kaizen: 3 hal dikuasai, 2 pertanyaan tersisa, 1 rencana perbaikan. Penguatan oleh guru.',
@@ -739,13 +739,13 @@ export const ExcelUploadZone: React.FC<ExcelUploadZoneProps> = ({
                         <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-2 p-2.5 bg-amber-50/60 rounded-xl border border-amber-300">
                           <div>
                             <label className="text-[10px] font-black text-amber-950 block mb-0.5">
-                              Sintaks Awal (Mindful):
+                              Kegiatan Awal (satu langkah per baris):
                             </label>
                             <textarea
-                              rows={2}
+                              rows={4}
                               value={rpp.sintaksPendahuluan || ''}
                               onChange={(e) => handleUpdateRppRow(i, 'sintaksPendahuluan', e.target.value)}
-                              placeholder="Doa, apersepsi, pemantik nalar kritis..."
+                              placeholder={'1. Guru membuka pelajaran dengan salam, doa, dan menyapa murid.\n2. Guru memeriksa kehadiran siswa.\n3. Apersepsi dengan pertanyaan pemantik...'}
                               className="w-full px-2 py-1 border border-neutral-300 rounded text-[11px]"
                             />
                           </div>
