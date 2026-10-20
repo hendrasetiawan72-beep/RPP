@@ -177,7 +177,7 @@ Buatlah tabel SPREADSHEET RPP DEEP LEARNING TERINTEGRASI LENGKAP dengan HEADER K
 | No / Unit | Elemen | Capaian Pembelajaran (CP) | Alur & Tujuan Pembelajaran (ATP / TP) | Tahapan Alur Pembelajaran | Lingkup Materi Pokok | Alokasi Waktu (JP) | Fase | Kelas | Semester | Lintas Disiplin Ilmu | Kesiapan Peserta Didik (Minat & Gaya Belajar) | Karakteristik & Sifat Materi | Dimensi Profil Lulusan / P5 | Metode & Model Pembelajaran | Kemitraan Industri & Orang Tua | Lingkungan Belajar (Fisik & Virtual) | Pemanfaatan Digital | Sintaks Pendahuluan (Mindful Learning) | Sintaks Inti 1 - Memahami & Eksplorasi (Meaningful Learning) | Tabel Hasil Eksplorasi | Sintaks Inti 2 - Mengaplikasi & Merefleksi (Joyful Learning) | Sintaks Penutup (Refleksi 3-2-1 & Kaizen) | Asesmen Awal (Diagnostik) | Asesmen Proses (Formatif) | Asesmen Akhir (Sumatif) | Pengayaan dan Remedial | Tautan Materi | Kode Embed Materi | Tautan LKPD | Kode Embed LKPD |
 
 KETENTUAN KHUSUS TIAP KOLOM SESUAI SKEMA APLIKASI:
-1. Sintaks Pendahuluan (Mindful Learning): Aktivitas membangun fokus, kesadaran emosional, doa, dan pertanyaan pemantik kontekstual.
+1. Kegiatan Awal / Sintaks Pendahuluan (Mindful Learning): tulis sebagai langkah bernomor, SATU LANGKAH PER BARIS di dalam sel (1. salam, doa, dan menyapa murid; 2. memeriksa kehadiran; 3. apersepsi dengan pertanyaan pemantik; 4. menyampaikan tujuan dan aktivitas pembelajaran).
 2. Sintaks Inti 1 (Meaningful Learning): Penyelidikan masalah nyata industri Batang atau studi kasus bermakna dengan sintaks PBL / PjBL.
 3. Tabel Hasil Eksplorasi: Format string tabel pengamatan dua kolom. Tuliskan dengan format: "Judul Tabel :: Nama Kolom 1 | Nama Kolom 2 :: baris1_kol1 | baris1_kol2 ; baris2_kol1 | baris2_kol2 ; baris3_kol1 | baris3_kol2"
    (Contoh: "Tabel Parameter Pengujian Mesin :: Parameter Indikator | Nilai Standar SOP :: Tekanan Kompresi | 1100 kPa ; Putaran Stasioner | 1400 RPM ; Tegangan Pengisian | 14.2 Volt")
@@ -727,7 +727,7 @@ Berikan dalam bentuk tabel Markdown terstruktur persis 1 tabel lengkap (3-4 bari
                         <td className="p-2 border-r border-neutral-300 text-center font-bold">19-22</td>
                         <td className="p-2 border-r border-neutral-300 font-mono font-bold text-amber-900">Sintaks Pembelajaran Deep Learning</td>
                         <td className="p-2">
-                          <strong>Sintaks Pendahuluan</strong> (Mindful), <strong>Sintaks Inti 1</strong> (Memahami & Eksplorasi Meaningful), <strong>Sintaks Inti 2</strong> (Mengaplikasi & Merefleksi Joyful), <strong>Sintaks Penutup</strong> (Refleksi 3-2-1 & Kaizen)
+                          <strong>Kegiatan Awal / Sintaks Pendahuluan</strong> (Mindful; satu langkah per baris atau 1. 2. 3.), <strong>Sintaks Inti 1</strong> (Memahami & Eksplorasi Meaningful), <strong>Sintaks Inti 2</strong> (Mengaplikasi & Merefleksi Joyful), <strong>Sintaks Penutup</strong> (Refleksi 3-2-1 & Kaizen)
                         </td>
                       </tr>
                       <tr className="bg-purple-50">
