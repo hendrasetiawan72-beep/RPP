@@ -149,6 +149,12 @@
     box-decoration-break: clone;
   }
 
+  /* Butir daftar tidak terpotong di tengah kalimat */
+  li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
   /* Ensure colors, watermarks, and borders print faithfully */
   * {
     -webkit-print-color-adjust: exact !important;
