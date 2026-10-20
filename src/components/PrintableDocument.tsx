@@ -6,6 +6,7 @@ import {
 } from '../types';
 import { CheckCircle2, CheckSquare, Square, Printer, Info, Edit3, Code2, ExternalLink, Table, Layers } from 'lucide-react';
 import { ReadableColumnPoints } from './ReadableColumnPoints';
+import { FormattedInstruction } from './FormattedInstruction';
 import { getLangkahKegiatanAwal } from '../utils/kegiatanAwal';
 
 interface PrintableDocumentProps {
@@ -829,9 +830,10 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                   <td className="p-2.5 text-neutral-800 space-y-3">
                     <div>
                       <p className="font-bold text-neutral-900 mb-1">a. Memahami (bermakna-menggembirakan)</p>
-                      <p className="leading-relaxed mb-2">
-                        {langkah.kegiatanInti.memahamiBermaknaMenggembirakan.instruksiGuru}
-                      </p>
+                      <FormattedInstruction
+                        text={langkah.kegiatanInti.memahamiBermaknaMenggembirakan.instruksiGuru}
+                        className="mb-2"
+                      />
 
                       {langkah.kegiatanInti.memahamiBermaknaMenggembirakan.tabelEksplorasi && (
                         <div className="my-2 border border-black max-w-lg">
@@ -862,10 +864,10 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                             <tbody className="divide-y divide-neutral-200">
                               {langkah.kegiatanInti.memahamiBermaknaMenggembirakan.tabelEksplorasi.data.map(([c1, c2], rIdx) => (
                                 <tr key={rIdx}>
-                                  <td className="p-1.5 border-r border-neutral-300 font-mono text-left">
+                                  <td className="p-1.5 border-r border-neutral-300 font-semibold text-neutral-900 text-left align-top leading-relaxed">
                                     <ReadableColumnPoints content={c1} badgeColor="amber" />
                                   </td>
-                                  <td className="p-1.5 font-mono text-left">
+                                  <td className="p-1.5 text-neutral-900 text-left align-top leading-relaxed">
                                     <ReadableColumnPoints content={c2} badgeColor="emerald" />
                                   </td>
                                 </tr>
@@ -890,8 +892,11 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
 
                     <div className="pt-2 border-t border-neutral-200">
                       <p className="font-bold text-neutral-900 mb-1">b. Merefleksi (berkesadaran - bermakna)</p>
-                      <p>{langkah.kegiatanInti.merefleksiBerkesadaranBermakna.instruksiAplikasi}</p>
-                      <p className="text-neutral-600 mt-0.5">{langkah.kegiatanInti.merefleksiBerkesadaranBermakna.penguatanKonsep}</p>
+                      <FormattedInstruction text={langkah.kegiatanInti.merefleksiBerkesadaranBermakna.instruksiAplikasi} />
+                      <FormattedInstruction
+                        text={langkah.kegiatanInti.merefleksiBerkesadaranBermakna.penguatanKonsep}
+                        className="mt-1.5 !text-neutral-700"
+                      />
                     </div>
                   </td>
                 </tr>
@@ -929,12 +934,12 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                     <div className="grid grid-cols-[190px_16px_1fr] items-start pt-1">
                       <span className="font-semibold text-neutral-800">• Kesimpulan dan Penguatan</span>
                       <span className="font-bold text-center text-neutral-900">:</span>
-                      <span className="text-neutral-800 pl-1">{langkah.kegiatanPenutup.kesimpulanDanPenguatan}</span>
+                      <FormattedInstruction text={langkah.kegiatanPenutup.kesimpulanDanPenguatan} className="pl-1" />
                     </div>
                     <div className="grid grid-cols-[190px_16px_1fr] items-start">
                       <span className="font-semibold text-neutral-800">• Rencana Tindak Lanjut</span>
                       <span className="font-bold text-center text-neutral-900">:</span>
-                      <span className="text-neutral-800 pl-1">{langkah.kegiatanPenutup.tindakLanjut}</span>
+                      <FormattedInstruction text={langkah.kegiatanPenutup.tindakLanjut} className="pl-1" />
                     </div>
                   </td>
                 </tr>
