@@ -6,6 +6,7 @@ import {
 } from '../types';
 import { CheckCircle2, CheckSquare, Square, Printer, Info, Edit3, Code2, ExternalLink, Table, Layers } from 'lucide-react';
 import { ReadableColumnPoints } from './ReadableColumnPoints';
+import { getLangkahKegiatanAwal } from '../utils/kegiatanAwal';
 
 interface PrintableDocumentProps {
   identity: SchoolIdentity;
@@ -284,7 +285,7 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
               Rubrik Penilaian Formatif Observasi Aktivitas Siswa di Kelompok
             </h5>
           </div>
-          <div className="border border-black overflow-hidden">
+          <div className="border border-black overflow-hidden rpp-table-wrap">
             <table className="w-full text-xs border-collapse">
               <thead>
                 <tr className="bg-neutral-100 border-b border-black font-bold">
@@ -336,7 +337,7 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
               Format F4 Landscape (330mm)
             </span>
           </div>
-          <div className="border border-black overflow-hidden">
+          <div className="border border-black overflow-hidden rpp-table-wrap">
             <table className="w-full text-[10px] border-collapse text-center">
               <thead>
                 <tr className="bg-neutral-100 border-b border-black font-bold">
@@ -383,6 +384,7 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
     const ident = pMendalam.identifikasi;
     const desain = pMendalam.desainPembelajaran;
     const langkah = rpp.pengalamanBelajar;
+    const langkahAwal = getLangkahKegiatanAwal(langkah, modul.judulMateri);
     const asesmen = rpp.asesmen;
     const lampiran = rpp.lampiran;
 
@@ -445,7 +447,7 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
             <span className="w-2.5 h-2.5 rounded-sm bg-black inline-block"></span>
             <span>A. Identitas</span>
           </h4>
-          <div className="border border-black overflow-hidden bg-white">
+          <div className="border border-black overflow-hidden rpp-box bg-white">
             <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-black text-xs">
               {/* Kolom Kiri */}
               <div className="divide-y divide-neutral-200">
@@ -518,7 +520,7 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
           {/* 1. Identifikasi */}
           <div className="space-y-2">
             <h5 className="font-bold text-xs text-neutral-900">1. Identifikasi Kesiapan dan Karakteristik</h5>
-            <div className="border border-black overflow-hidden bg-white text-xs">
+            <div className="border border-black overflow-hidden rpp-table-wrap bg-white text-xs">
               <table className="w-full border-collapse">
                 <tbody>
                   <tr className="border-b border-black">
@@ -621,7 +623,7 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
           {/* 2. Desain Pembelajaran */}
           <div className="space-y-2">
             <h5 className="font-bold text-xs text-neutral-900">2. Desain Pembelajaran Terpadu</h5>
-            <div className="border border-black overflow-hidden bg-white text-xs">
+            <div className="border border-black overflow-hidden rpp-table-wrap bg-white text-xs">
               <table className="w-full border-collapse">
                 <tbody>
                   <tr className="border-b border-black">
@@ -782,9 +784,42 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
           </h4>
           <h5 className="font-bold text-xs text-neutral-900">a. Langkah-langkah Pembelajaran</h5>
 
-          <div className="border border-black overflow-hidden bg-white text-xs">
+          <div className="border border-black overflow-hidden rpp-table-wrap bg-white text-xs">
             <table className="w-full border-collapse">
               <tbody>
+                <tr className="border-b border-black">
+                  <td className="w-48 p-2.5 font-bold align-top bg-neutral-50/70 border-r border-black">
+                    Kegiatan Awal
+                    <br />
+                    <span className="font-normal text-[11px] text-neutral-600">(berkesadaran-bermakna)</span>
+                  </td>
+                  <td className="p-2.5 text-neutral-800 align-top">
+                    {onOpenRppEditor && (
+                      <div className="flex justify-end mb-1 no-print">
+                        <button
+                          onClick={() => onOpenRppEditor('sintaks')}
+                          className="neo-btn px-2 py-0.5 bg-emerald-300 hover:bg-emerald-200 text-black text-[10px] font-black rounded border border-black flex items-center gap-1 shadow-[1px_1px_0px_#000]"
+                          title="Ubah langkah Kegiatan Awal secara manual (atau isi lewat kolom Kegiatan Awal pada Excel)"
+                        >
+                          <Edit3 className="w-2.5 h-2.5" />
+                          <span>✏️ Ubah Kegiatan Awal</span>
+                        </button>
+                      </div>
+                    )}
+                    {langkahAwal.length > 0 ? (
+                      <ol className="list-decimal list-outside pl-6 space-y-0.5 leading-relaxed">
+                        {langkahAwal.map((item, i) => (
+                          <li key={i} className="pl-1">
+                            {item}
+                          </li>
+                        ))}
+                      </ol>
+                    ) : (
+                      <span className="text-neutral-500">–</span>
+                    )}
+                  </td>
+                </tr>
+
                 <tr className="border-b border-black">
                   <td className="w-48 p-2.5 font-bold align-top bg-neutral-50/70 border-r border-black">
                     Kegiatan Inti
@@ -916,7 +951,7 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
           </h4>
 
           {/* Ringkasan Asesmen dengan Titik Dua Selaras */}
-          <div className="border border-black overflow-hidden bg-white text-xs">
+          <div className="border border-black overflow-hidden rpp-box bg-white text-xs">
             <div className="divide-y divide-neutral-200">
               <div className="grid grid-cols-[190px_16px_1fr] items-start p-2">
                 <span className="font-bold text-neutral-800">Asesmen Awal (Diagnostik)</span>
@@ -944,7 +979,7 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
               <span className="font-bold text-center">:</span>
               <span className="pl-1 italic">{asesmen.asesmenAwalInstrumen.tujuan}</span>
             </div>
-            <div className="border border-black overflow-hidden bg-white max-w-2xl">
+            <div className="border border-black overflow-hidden rpp-table-wrap bg-white max-w-2xl">
               <table className="w-full text-xs border-collapse">
                 <thead>
                   <tr className="bg-neutral-100 border-b border-black font-bold">
@@ -976,7 +1011,7 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
           {/* b. Asesmen Proses */}
           <div className="space-y-1.5 text-xs">
             <h5 className="font-bold text-xs text-neutral-900">b. Asesmen Proses (Formatif)</h5>
-            <div className="border border-black overflow-hidden bg-white p-2.5 divide-y divide-neutral-200">
+            <div className="border border-black overflow-hidden rpp-box bg-white p-2.5 divide-y divide-neutral-200">
               <div className="flex items-start gap-2 py-1.5">
                 <span className="inline-flex items-center justify-center font-mono font-bold text-[10px] min-w-[18px] h-[18px] rounded bg-emerald-100 text-emerald-950 border border-emerald-400 shrink-0 mt-[1px] select-none print:border-black print:bg-neutral-100 print:text-black">
                   1
@@ -1117,7 +1152,7 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
               <h6 className="font-bold text-neutral-900 mb-2">
                 3) Rubrik Penilaian Sikap Observasi Kelompok
               </h6>
-              <div className="border border-black overflow-hidden">
+              <div className="border border-black overflow-hidden rpp-table-wrap">
                 <table className="w-full text-xs border-collapse">
                   <thead>
                     <tr className="bg-neutral-100 border-b border-black font-bold">
@@ -1175,7 +1210,7 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             <div className="border border-black p-3 bg-white space-y-2">
               <h5 className="font-bold text-neutral-900">1. Refleksi Pendidik (Jurnal Refleksi Diri)</h5>
-              <div className="border border-black overflow-hidden">
+              <div className="border border-black overflow-hidden rpp-table-wrap">
                 <table className="w-full text-xs border-collapse">
                   <thead>
                     <tr className="bg-neutral-100 border-b border-black font-bold">
@@ -1199,7 +1234,7 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
 
             <div className="border border-black p-3 bg-white space-y-2">
               <h5 className="font-bold text-neutral-900">2. Refleksi Peserta Didik (Angket Pemahaman)</h5>
-              <div className="border border-black overflow-hidden">
+              <div className="border border-black overflow-hidden rpp-table-wrap">
                 <table className="w-full text-xs border-collapse text-center">
                   <thead>
                     <tr className="bg-neutral-100 border-b border-black font-bold">
@@ -1276,7 +1311,7 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
             </div>
 
             {/* Identitas ATP Tabel - 2-Kolom Landscape dengan Titik Dua yang Selaras */}
-            <div className="border border-black overflow-hidden bg-white text-xs">
+            <div className="border border-black overflow-hidden rpp-box bg-white text-xs">
               <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-black">
                 <div className="divide-y divide-neutral-200">
                   <div className="grid grid-cols-[150px_16px_1fr] items-start p-2">
