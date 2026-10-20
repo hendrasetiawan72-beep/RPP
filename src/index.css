@@ -1,384 +1,158 @@
-export interface ExcelRawRow {
-  no?: number | string;
-  elemen: string;
-  capaianPembelajaran: string;
-  materi: string;
-  jp?: number | string;
-  fase?: string;
-  kelas?: string;
-  semester?: string;
-  lintasDisiplin?: string;
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #18181b;
+    background-color: #fdfbf7;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: 'Fraunces', serif;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
 }
 
-/**
- * Format Excel RPP Terintegrasi dengan seluruh kolom yang disesuaikan
- * agar terhubung langsung dengan CP, ATP, materi, metode, sintaks dan asesmen
- */
-export interface ExcelRppRawRow {
-  no?: number | string;
-  elemen: string;
-  capaianPembelajaran: string;
-  tujuanPembelajaran: string; // ATP / TP
-  alurPembelajaran?: string; // Urutan logis / tahapan alur ATP
-  materi: string; // Lingkup materi pokok
-  jp?: number | string; // Alokasi waktu (JP)
-  fase?: string;
-  kelas?: string;
-  semester?: string;
-  lintasDisiplin?: string;
-  kesiapanPesertaDidik?: string; // Minat, cara belajar, latar belakang
-  karakteristikMateri?: string; // Deskripsi & sifat materi (konseptual & aplikatif)
-  profilLulusan?: string; // Dimensi profil pelajar pancasila / profil lulusan
-  metodePembelajaran?: string; // Model/metode (PBL, PjBL, Inquiry, dll.)
-  kemitraan?: string; // Mitra industri & Orang Tua
-  lingkunganDigital?: string; // Ruang fisik, virtual, digital tools
-  sintaksPendahuluan?: string; // Kegiatan Awal (Mindful Learning): satu langkah per baris, atau bernomor 1. 2. 3.
-  sintaksInti1?: string; // Kegiatan Inti 1 (Memahami & Eksplorasi - Meaningful)
-  sintaksInti2?: string; // Kegiatan Inti 2 (Aplikasi & Refleksi - Joyful)
-  sintaksPenutup?: string; // Kegiatan Penutup (Refleksi 3-2-1 & Kaizen)
-  asesmenAwal?: string; // Asesmen Awal / Diagnostik
-  asesmenProses?: string; // Asesmen Proses / Formatif (Diskusi, Presentasi, Unjuk Kerja)
-  asesmenAkhir?: string; // Asesmen Akhir / Sumatif (LKPD, Proyek, Uji Teori/Praktik)
-  pengayaanRemedial?: string; // Program pengayaan dan bimbingan remedial
-  tabelEksplorasi?: string; // Format teks tabel eksplorasi pengamatan dalam RPP (diubah via Excel / manual)
-  tautanMateri?: string; // Link bahan ajar yang bisa dibuka via hyperlink di PDF
-  embedMateri?: string; // Kode embed HTML / script bahan ajar multimedia
-  tautanLkpd?: string; // Link LKPD yang bisa dibuka via hyperlink di PDF
-  embedLkpd?: string; // Kode embed HTML / iframe LKPD interaktif
-  embedRubrik?: string; // Kode embed rubrik penilaian
+/* Custom Neo-brutalist Shadows and borders */
+.neo-box {
+  border: 2.5px solid #000;
+  box-shadow: 4px 4px 0px #000;
+  border-radius: 0.875rem;
+  background-color: #ffffff;
 }
 
-export interface ParsedExcelResult {
-  fileType: 'cp' | 'rpp' | 'atp';
-  cpRows: ExcelRawRow[];
-  atpRows?: ExcelRawRow[];
-  rppRows?: ExcelRppRawRow[];
-  detectedSubject?: string;
-  detectedClass?: string;
-  detectedPhase?: string;
-  detectedCategory?: 'kejuruan' | 'umum';
+.neo-box-sm {
+  border: 2px solid #000;
+  box-shadow: 2px 2px 0px #000;
+  border-radius: 0.75rem;
 }
 
-export interface SchoolIdentity {
-  schoolName: string;
-  kabupaten: string;
-  provinsi: string;
-  majelisLine1: string;
-  majelisLine2: string;
-  statusAkreditasi: string;
-  alamatLengkap: string;
-  email: string;
-  website: string;
-  kodePos: string;
-  telepon: string;
-  fax: string;
-  kategoriMapel?: 'kejuruan' | 'umum'; // Kejuruan (Produktif) vs Normatif-Adaptif (Umum)
-  programKeahlian: string;
-  konsentrasiKeahlian: string;
-  mataPelajaran: string;
-  fase: string; // 'E' | 'F'
-  kelas: string; // 'X' | 'XI' | 'XII'
-  semester: string; // '1 (Ganjil)' | '2 (Genap)'
-  tahunPelajaran: string;
-  alokasiWaktuTotal: string;
-  namaGuru: string;
-  nipGuru: string;
-  namaKepalaSekolah: string;
-  nipKepalaSekolah: string;
-  tanggalPenyusunan: string;
+.neo-box-lg {
+  border: 3px solid #000;
+  box-shadow: 6px 6px 0px #000;
+  border-radius: 1rem;
 }
 
-export interface AlurTujuanPembelajaranItem {
-  id: string;
-  kodeTp: string;
-  elemen: string;
-  capaianPembelajaran: string;
-  lingkupMateri: string;
-  kompetensi: string[];
-  tujuanPembelajaran: string; // [Kompetensi + Konten + Keterampilan Berpikir]
-  alurTujuanPembelajaran: string; // Urutan logis pembelajaran dalam fase
-  profilPelajarPancasila: string[];
-  alokasiWaktuJp: number;
-  asesmenRencana: {
-    diagnostik: string;
-    formatif: string;
-    sumatif: string;
-  };
+.neo-btn {
+  border: 2px solid #000;
+  box-shadow: 3px 3px 0px #000;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-export interface DeepLearningPillars {
-  mindfulLearning: {
-    definisi: string;
-    aktivitas: string[];
-    pemicuNalarKritis: string[];
-  };
-  meaningfulLearning: {
-    definisi: string;
-    aktivitas?: string[];
-    koneksiIndustri: string[];
-    aplikasiDuniaNyata: string[];
-  };
-  joyfulLearning: {
-    definisi: string;
-    aktivitas?: string[];
-    metodeInteraktif: string[];
-    eksplorasiMenyenangkan: string[];
-  };
+.neo-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #000;
 }
 
-export interface PertemuanPembelajaran {
-  pertemuanKe: number;
-  alokasiWaktu: string;
-  topikFokus: string;
-  pendahuluan: {
-    durasi: string;
-    kegiatan: string[];
-    mindfulActivity: string;
-  };
-  kegiatanInti: {
-    durasi: string;
-    sintaksModel: string;
-    kegiatan: string[];
-    meaningfulActivity: string;
-    joyfulActivity: string;
-  };
-  penutup: {
-    durasi: string;
-    kegiatan: string[];
-    refleksiKaizen: string;
-    refleksi321: {
-      tigaHalDikuasai: string;
-      duaHalDitingkatkan: string;
-      satuStrategiPerbaikan: string;
-    };
-  };
+.neo-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #000;
 }
 
-export interface AsesmenFormatifRubrik {
-  indikator: string;
-  skor1: string; // Perlu Bimbingan (0-60)
-  skor2: string; // Cukup (61-75)
-  skor3: string; // Baik (76-88)
-  skor4: string; // Sangat Baik (89-100)
+/* Print specific styles for F4 / Folio Landscape rendering & high fidelity */
+@media print {
+  @page {
+    /* Standar Kertas F4 / Folio Landscape Resmi: Lebar 330mm, Tinggi 215mm */
+    size: 330mm 215mm landscape;
+    margin: 8mm 12mm 8mm 12mm;
+  }
+
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-size: 9.5pt !important;
+    line-height: 1.3 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .page-break-before {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+
+  .page-break-after {
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
+  .page-break-inside-avoid {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  table {
+    page-break-inside: auto !important;
+    width: 100% !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  /* === Cetak rapi: tanpa garis kolom terputus & tanpa judul tertinggal === */
+
+  /* Judul selalu ikut halaman yang sama dengan isi di bawahnya */
+  h1, h2, h3, h4, h5, h6 {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  /* Container utama tidak boleh memotong konten antar-halaman */
+  .print-container {
+    overflow: visible !important;
+  }
+
+  /* Border pembungkus <div> ikut memanjang ke dasar halaman saat tabel terpotong.
+     Di mode cetak, garis dipindah ke tabel (border-collapse) sehingga tiap potongan
+     tabel tertutup rapi dan garis kolom menyambung di setiap halaman. */
+  .rpp-table-wrap {
+    border: 0 !important;
+    overflow: visible !important;
+  }
+
+  .rpp-table-wrap > table {
+    border: 1px solid #000 !important;
+    border-collapse: collapse !important;
+  }
+
+  /* Kotak non-tabel (grid/daftar): tiap potongan halaman digambar dengan border penuh */
+  .rpp-box {
+    overflow: visible !important;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
+  /* Ensure colors, watermarks, and borders print faithfully */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 }
 
-/**
- * Format RPP Pendekatan Deep Learning lengkap sesuai dokumen PDF resmi
- */
-export interface ModulAjarData {
-  id: string;
-  nomorModul: number;
-  judulMateri: string;
-  elemenTerkait: string;
-  alokasiWaktuMateri: string;
-  identity: SchoolIdentity;
-  // Format RPP Deep Learning
-  rppFormat: {
-    // A. Identitas
-    identitasTabel: {
-      mataPelajaran: string;
-      kelas: string;
-      semesterTahunPelajaran: string;
-      lingkupMateri: string;
-      waktuJp: string;
-    };
-    // B. Perencanaan Pembelajaran Mendalam
-    perencanaanMendalam: {
-      // 1. Identifikasi
-      identifikasi: {
-        kesiapanPesertaDidik: {
-          minat: string;
-          caraBelajar: string;
-          lingkunganTempatTinggal: string;
-        };
-        karakteristikMateri: {
-          deskripsiMateri: string;
-          poinKarakteristik: string[];
-          sifatMateri: {
-            konseptualDanAplikatif: string;
-            kemampuanBerpikirIlmiah: string;
-          };
-        };
-        dimensiProfilLulusan: {
-          keimananKetakwaan: boolean;
-          kesehatan: boolean;
-          kemandirian: boolean;
-          bernalarKritis: boolean;
-          kolaborasi: boolean;
-          komunikasi: boolean;
-          kreativitas: boolean;
-          kewargaan: boolean;
-        };
-      };
-      // 2. Desain Pembelajaran
-      desainPembelajaran: {
-        capaianPembelajaran: string;
-        lintasDisiplinIlmu: string;
-        tujuanPembelajaran: string[];
-        topikKontekstual: string[];
-        kerangkaPembelajaran: {
-          praktikPedagogik: {
-            pbl: string;
-            pjbl: string;
-          };
-          kemitraanPembelajaran: {
-            mitraIndustri: { nama: string; peran: string[]; terkaitPbl: string };
-            orangTuaWali: { peran: string[]; terkaitMetode: string };
-          };
-          lingkunganBelajar: {
-            ruangFisik: string[];
-            ruangVirtual: string[];
-            budayaBelajar: string[];
-            penerapanNyataBudaya: {
-              ruangFisik: string;
-              ruangVirtual: string;
-              budayaBelajar: string;
-            };
-          };
-          pemanfaatanDigital: string[];
-        };
-      };
-    };
-    // 3. Pengalaman Belajar (Langkah Pembelajaran)
-    pengalamanBelajar: {
-      // Kegiatan Awal (berkesadaran-bermakna): daftar langkah bernomor, satu elemen = satu langkah
-      kegiatanAwal: {
-        langkah: string[];
-      };
-      kegiatanInti: {
-        memahamiBermaknaMenggembirakan: {
-          instruksiGuru: string;
-          tabelEksplorasi?: {
-            judul: string;
-            kolom: [string, string];
-            data: [string, string][];
-          };
-          rangkumanTemuan: string[];
-        };
-        merefleksiBerkesadaranBermakna: {
-          instruksiAplikasi: string;
-          penguatanKonsep: string;
-        };
-      };
-      kegiatanPenutup: {
-        refleksiIndividu321: {
-          tigaHalPenting: string;
-          duaPertanyaan: string;
-          satuHalMenarik: string;
-        };
-        kesimpulanDanPenguatan: string;
-        tindakLanjut: string;
-      };
-    };
-    // 4. Asesmen
-    asesmen: {
-      ringkasan: {
-        asesmenAwal: string;
-        asesmenProses: string;
-        asesmenAkhir: string;
-      };
-      asesmenAwalInstrumen: {
-        tujuan: string;
-        daftarPertanyaan: { no: number; pertanyaan: string }[];
-        tujuanEvaluasi: string;
-      };
-      asesmenProsesDetail: {
-        diskusi: string;
-        presentasi: string;
-        unjukKerja: string;
-      };
-      asesmenSumatifDetail: {
-        pengantar: string;
-        sikapSpiritual: { teknik: string; instrumen: string; indikator: string[] };
-        sikapSosial: { teknik: string; instrumen: string; indikator: string[] };
-        pengetahuanKelompok: {
-          aspek: string[];
-          pedomanSkor: { skor: number; predikat: string; kriteria: string }[];
-          rumus: string;
-        };
-        penilaianKeterampilan: {
-          aspek: string[];
-          pedomanSkor: { skor: number; predikat: string; kriteria: string }[];
-          rumus: string;
-        };
-        hasilKerjaKelompok: {
-          aspek: string[];
-          pedomanSkor: { skor: number; predikat: string; kriteria: string }[];
-          rumus: string;
-        };
-        rubrikPenilaianSikapObservasi: {
-          kriteria: string;
-          sangatBaik: string; // 4
-          baik: string; // 3
-          cukup: string; // 2
-          perluDikembangkan: string; // 1
-        }[];
-      };
-    };
-    // F. Pengayaan dan Remedial
-    pengayaanDanRemedial: {
-      pengayaan: string;
-      remedial: string;
-    };
-    // G. Refleksi Guru dan Peserta Didik
-    refleksiGuruDanPesertaDidik: {
-      refleksiGuru: { no: number; aspek: string; refleksi: string }[];
-      refleksiPesertaDidik: {
-        pertanyaanJurnal: string[];
-        angketEmoticon: { no: number; kompetensi: string }[];
-      };
-      hasilTindakLanjut: string[];
-    };
-    // Lampiran-Lampiran
-    lampiran: {
-      lkpd: {
-        nomor: string;
-        judul: string;
-        tautan?: string;
-        embedCode?: string;
-        rangkumanHasilDiskusi?: string;
-        pertanyaanDiskusi?: { no: number; pertanyaan: string }[];
-        soalAnalisisKontekstual?: string[];
-      };
-      bahanBacaan: {
-        judul: string;
-        tautan?: string;
-        embedCode?: string;
-        pengantarFungsi?: string;
-        analogiIlustrasi?: string;
-        pembahasan1?: { judul: string; uraian: string };
-        pembahasan2?: { judul: string; uraian: string };
-        pertanyaanUji?: string[];
-      };
-      rubrikObservasiKelompok: {
-        no: number;
-        aspek: string;
-        kriteria: string[];
-        embedCode?: string;
-      }[];
-      embedCodeRubrik?: string;
-      rekapNilaiSiswaContoh: {
-        no: number;
-        nama: string;
-        keaktifan: number;
-        kerjasama: number;
-        tanggungJawab: number;
-        disiplin: number;
-        ketuntasan: number;
-        totalSkor: number;
-        nilaiAkhir: number;
-      }[];
-    };
-  };
-  // Fallbacks for older compatibility
-  informasiUmum?: any;
-  komponenInti?: any;
-  lampiran?: any;
-}
-
-export interface GeneratedPerangkatAjar {
-  identity: SchoolIdentity;
-  atpList: AlurTujuanPembelajaranItem[];
-  modulAjarList: ModulAjarData[];
-  createdAt: string;
-}
