@@ -68,10 +68,10 @@ export function parseNumberedPoints(text: string | string[] | undefined | null):
     }
   }
 
-  // 5. Check for semicolon or bullet-separated lists with at least 2 distinct items
-  if (str.includes(';') || str.includes(' • ') || str.includes(' - ')) {
+  // 5. Check for semicolon, bullet, or dash-separated lists with at least 2 distinct items
+  if (str.includes(';') || str.includes(' • ') || /\s[-–—]\s/.test(str)) {
     const parts = str
-      .split(/[;•]+/)
+      .split(/[;•]|\s[-–—]\s/)
       .map((p) => p.trim())
       .filter(Boolean);
     if (parts.length > 1 && parts.every((p) => p.length < 150)) {
