@@ -117,7 +117,7 @@ export const MAJOR_SAMPLES: MajorSample[] = [
         lingkunganDigital:
           'Ruang Fisik: Lab Akuntansi standar 5S. Ruang Virtual: Google Classroom & Spreadsheet Kolaboratif.',
         sintaksPendahuluan:
-          'Mindful Learning: Guru mengajak berkesadaran, doa, apersepsi mengecek kesiapan fisik dan mental. Menampilkan kuitansi dan faktur bermasalah dengan pertanyaan pemantik: "Apa dampak bagi pemilik usaha bila dokumen transaksi salah catat?"',
+          '1. Guru membuka pelajaran dengan salam, doa, dan mengajak murid berkesadaran.\n2. Guru memeriksa kehadiran serta kesiapan fisik dan mental murid.\n3. Guru menampilkan kuitansi dan faktur bermasalah, lalu mengajukan pertanyaan pemantik: "Apa dampak bagi pemilik usaha bila dokumen transaksi salah catat?"\n4. Guru menyampaikan tujuan pembelajaran dan aktivitas yang akan dilakukan.',
         sintaksInti1:
           'Meaningful Learning: Murid berkelompok mengamati satu bundel bukti transaksi nyata perusahaan dagang, mengidentifikasi nama akun, menghitung nominal, menganalisis posisi debet/kredit, dan mengisi lembar kerja analisis.',
         sintaksInti2:
@@ -159,7 +159,7 @@ export const MAJOR_SAMPLES: MajorSample[] = [
         lingkunganDigital:
           'Ruang Fisik: Laboratorium Komputer SMK Muhammadiyah Bawang standar K3LH. Ruang Virtual: Google Classroom.',
         sintaksPendahuluan:
-          'Mindful Learning: Doa bersama, cek kerapian ruang lab (budaya 5S), penayangan studi kasus perbandingan efisiensi pembukuan manual vs digital, pertanyaan pemantik: "Mengapa dunia industri beralih ke software akuntansi?"',
+          '1. Guru membuka pelajaran dengan salam dan doa bersama.\n2. Guru memeriksa kehadiran dan kerapian ruang lab (budaya 5S).\n3. Guru menayangkan studi kasus perbandingan efisiensi pembukuan manual vs digital, lalu mengajukan pertanyaan pemantik: "Mengapa dunia industri beralih ke software akuntansi?"\n4. Guru menyampaikan tujuan pembelajaran dan aktivitas yang akan dilakukan.',
         sintaksInti1:
           'Meaningful Learning: Murid membuka lembar profil usaha dagang dan mengikuti demonstrasi guru dalam membuat data baru perusahaan, menentukan periode akuntansi 13 bulan, serta menyusun struktur akun.',
         sintaksInti2:
@@ -201,7 +201,7 @@ export const MAJOR_SAMPLES: MajorSample[] = [
         lingkunganDigital:
           'Ruang Fisik: Kelas diskusi dan lab akuntansi. Ruang Virtual: Portal simulasi pajak DJP Online.',
         sintaksPendahuluan:
-          'Mindful Learning: Refleksi peran pajak bagi pembangunan sekolah dan jalan di Batang, doa bersama, pertanyaan pemantik: "Bagaimana bila wajib pajak salah menghitung PTKP?"',
+          '1. Guru membuka pelajaran dengan salam dan doa bersama.\n2. Guru memeriksa kehadiran murid.\n3. Guru mengajak murid merefleksikan peran pajak bagi pembangunan sekolah dan jalan di Batang, lalu mengajukan pertanyaan pemantik: "Bagaimana bila wajib pajak salah menghitung PTKP?"\n4. Guru menyampaikan tujuan pembelajaran dan aktivitas yang akan dilakukan.',
         sintaksInti1:
           'Meaningful Learning: Analisis slip gaji pegawai dengan variasi status kawin dan tanggungan anak (PTKP K/0, K/1, K/2), menghitung penghasilan neto dan PKP sesuai tarif UU HPP.',
         sintaksInti2:
