@@ -7,6 +7,7 @@ import {
   SchoolIdentity,
   ModulAjarData,
 } from '../types';
+import { getLangkahKegiatanAwal, langkahToExcelCell } from './kegiatanAwal';
 
 /**
  * Normalizes header string to recognize variations in teacher spreadsheets
@@ -55,6 +56,7 @@ export async function parseExcelFile(file: File): Promise<ParsedExcelResult> {
           // Check for RPP specific keys
           const rppKeyMatches = rowKeys.filter((k) =>
             k.includes('sintaks') ||
+            k.includes('kegiatanawal') ||
             k.includes('metode') ||
             k.includes('mindful') ||
             k.includes('meaningful') ||
@@ -83,7 +85,21 @@ export async function parseExcelFile(file: File): Promise<ParsedExcelResult> {
 
           if (headerRowIndex !== -1) {
             rowKeys.forEach((key, idx) => {
-              if (key.includes('no') || key === 'nomor' || key === 'unit') colMap['no'] = idx;
+              // Urutan penting: kolom yang lebih spesifik dicek lebih dulu. Contoh: "Kode Embed Materi" dan
+              // "Karakteristik & Sifat Materi" mengandung "materi"; "Pengayaan" mengandung "gaya"; "Asesmen Awal
+              // (Diagnostik)" mengandung "awal" dan "no". Tanpa urutan ini kolom tersebut saling menimpa.
+              if (key.includes('asesmenawal') || key.includes('diagnostik')) colMap['asesmenAwal'] = idx;
+              else if (key.includes('asesmenproses') || key.includes('formatif') || key.includes('unjukkerja')) colMap['asesmenProses'] = idx;
+              else if (key.includes('asesmenakhir') || key.includes('sumatif')) colMap['asesmenAkhir'] = idx;
+              else if (key.includes('tautanmateri') || key.includes('linkmateri')) colMap['tautanMateri'] = idx;
+              else if (key.includes('embedmateri') || key.includes('scriptmateri') || key.includes('htmlmateri')) colMap['embedMateri'] = idx;
+              else if (key.includes('tautanlkpd') || key.includes('linklkpd')) colMap['tautanLkpd'] = idx;
+              else if (key.includes('embedlkpd') || key.includes('scriptlkpd') || key.includes('htmllkpd')) colMap['embedLkpd'] = idx;
+              else if (key.includes('embedrubrik') || key.includes('rubrikembed')) colMap['embedRubrik'] = idx;
+              else if (key.includes('pengayaan') || key.includes('remedial')) colMap['pengayaan'] = idx;
+              else if (/^(no|nomor|unit|nounit|nourut|nomorunit)$/.test(key)) colMap['no'] = idx;
+              else if (key.includes('karakteristik') || key.includes('sifat')) colMap['karakteristik'] = idx;
+              else if (key.includes('kesiapan') || key.includes('minat') || key.includes('gaya')) colMap['kesiapan'] = idx;
               else if (key.includes('elemen') || key.includes('aspek')) colMap['elemen'] = idx;
               else if (key.includes('capaian') || key === 'cp') colMap['cp'] = idx;
               else if (key.includes('tujuan') || key === 'tp' || key.includes('atp')) colMap['tp'] = idx;
@@ -94,25 +110,15 @@ export async function parseExcelFile(file: File): Promise<ParsedExcelResult> {
               else if (key.includes('kelas') || key.includes('tingkat')) colMap['kelas'] = idx;
               else if (key.includes('semester')) colMap['semester'] = idx;
               else if (key.includes('disiplin') || key.includes('lintas')) colMap['lintasDisiplin'] = idx;
-              else if (key.includes('kesiapan') || key.includes('minat') || key.includes('gaya')) colMap['kesiapan'] = idx;
-              else if (key.includes('karakteristik') || key.includes('sifat')) colMap['karakteristik'] = idx;
               else if (key.includes('profil') || key.includes('lulusan') || key.includes('p5')) colMap['profil'] = idx;
               else if (key.includes('metode') || key.includes('model') || key.includes('pbl') || key.includes('pjbl')) colMap['metode'] = idx;
               else if (key.includes('mitra') || key.includes('kemitraan') || key.includes('dudi')) colMap['kemitraan'] = idx;
               else if (key.includes('digital') || key.includes('lingkungan')) colMap['digital'] = idx;
-              else if (key.includes('pendahuluan') || key.includes('awal') || key.includes('mindful')) colMap['sintaksAwal'] = idx;
+              else if (key.includes('pendahuluan') || key.includes('kegiatanawal') || key.includes('sintaksawal') || key === 'awal' || key.includes('mindful')) colMap['sintaksAwal'] = idx;
               else if (key.includes('inti1') || key.includes('memahami') || key.includes('meaningful')) colMap['sintaksInti1'] = idx;
               else if (key.includes('inti2') || key.includes('aplikasi') || key.includes('joyful') || key.includes('refleksiberkesadaran')) colMap['sintaksInti2'] = idx;
               else if (key.includes('penutup') || key.includes('refleksi321') || key.includes('kaizen')) colMap['sintaksPenutup'] = idx;
-              else if (key.includes('asesmenawal') || key.includes('diagnostik')) colMap['asesmenAwal'] = idx;
-              else if (key.includes('asesmenproses') || key.includes('formatif') || key.includes('unjukkerja')) colMap['asesmenProses'] = idx;
-              else if (key.includes('pengayaan') || key.includes('remedial')) colMap['pengayaan'] = idx;
               else if (key.includes('tabeleksplorasi') || key.includes('hasileksplorasi') || key.includes('eksplorasi') || key.includes('datapengamatan')) colMap['tabelEksplorasi'] = idx;
-              else if (key.includes('tautanmateri') || key.includes('linkmateri')) colMap['tautanMateri'] = idx;
-              else if (key.includes('embedmateri') || key.includes('scriptmateri') || key.includes('htmlmateri')) colMap['embedMateri'] = idx;
-              else if (key.includes('tautanlkpd') || key.includes('linklkpd')) colMap['tautanLkpd'] = idx;
-              else if (key.includes('embedlkpd') || key.includes('scriptlkpd') || key.includes('htmllkpd')) colMap['embedLkpd'] = idx;
-              else if (key.includes('embedrubrik') || key.includes('rubrikembed')) colMap['embedRubrik'] = idx;
             });
             break;
           }
@@ -467,7 +473,7 @@ export function downloadRppExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = '
         'Mitra DUDI: Dunia Usaha & Industri Perdagangan Batang. Peran Ortu: Pendampingan rekaman video latihan mandiri.',
         'Ruang Fisik: Kelas kolaboratif melingkar. Ruang Virtual: Google Classroom & audio script podcast digital.',
         'Google Classroom, Google Voice Recorder, YouTube Vocational Learning',
-        'Mindful Learning: Guru menyapa, doa, cek kesiapan emosional, memutar cuplikan 2 menit rekaman percakapan pelanggan komplain, dan mengajukan pertanyaan pemantik: "Bagaimana cara merespon pelanggan marah secara profesional?"',
+        '1. Guru membuka pelajaran dengan salam, doa, dan menyapa murid.\n2. Guru memeriksa kehadiran dan kesiapan emosional murid.\n3. Guru memutar cuplikan 2 menit rekaman percakapan pelanggan komplain, lalu mengajukan pertanyaan pemantik: "Bagaimana cara merespon pelanggan marah secara profesional?"\n4. Guru menyampaikan tujuan pembelajaran dan aktivitas yang akan dilakukan.',
         'Meaningful Learning: Murid berkelompok menganalisis naskah transkrip keluhan pelanggan, membedah ungkapan empati dan solutif, serta menyusun tabel frasa profesional.',
         'Joyful Learning: Setiap pasangan melakukan simulasi roleplay "Customer Service vs Client" dengan skenario acak menyenangkan, dilanjutkan saling memberikan umpan balik konstruktif (peer assessment).',
         'Refleksi 3-2-1: 3 frasa kerja paling bermanfaat, 2 kesulitan artikulasi yang dihadapi, 1 strategi perbaikan. Guru memberi kesimpulan dan apresiasi.',
@@ -517,7 +523,7 @@ export function downloadRppExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = '
         'Mitra DUDI: Kantor Akuntan Publik & Bank Mini SMK Muhammadiyah Bawang. Peran Ortu: Pendampingan observasi pencatatan keuangan usaha di rumah.',
         'Ruang Fisik: Lab Akuntansi / Bengkel Kejuruan berstandar 5S. Ruang Virtual: Google Classroom & Spreadsheet Kolaboratif.',
         'Google Classroom, Spreadsheet Keuangan / Software Komputer Akuntansi, LCD Proyektor',
-        'Mindful Learning: Guru mengajak berkesadaran, doa, apersepsi mengecek kesiapan fisik dan mental. Menampilkan sebuah kuitansi dan faktur bermasalah dengan pertanyaan pemantik nalar kritis: "Apa dampak bagi pemilik usaha bila dokumen ini salah catat?"',
+        '1. Guru membuka pelajaran dengan salam, doa, dan mengajak murid berkesadaran.\n2. Guru memeriksa kehadiran serta kesiapan fisik dan mental murid.\n3. Guru menampilkan kuitansi dan faktur bermasalah, lalu mengajukan pertanyaan pemantik nalar kritis: "Apa dampak bagi pemilik usaha bila dokumen ini salah catat?"\n4. Guru menyampaikan tujuan pembelajaran dan aktivitas yang akan dilakukan.',
         'Meaningful Learning: Murid berkelompok mengamati satu bundel bukti transaksi nyata. Murid mengidentifikasi nama akun, menghitung nominal, menganalisis posisi debet/kredit, dan mengisi lembar kerja analisis transaksi.',
         'Joyful Learning: Setiap kelompok berlomba melakukan pencatatan ke lembar jurnal khusus berformat standar industri dengan pembagian peran terstruktur (analis bukti, pencatat jurnal, dan verifikator saldo), dilanjutkan verifikasi silang antar-kelompok.',
         'Refleksi 3-2-1 & Kaizen: 3 akun yang paling sering tertukar debet/kreditnya, 2 langkah pencegahan salah catat, 1 komitmen ketelitian kerja akuntansi. Guru memberi penguatan konsep SAK EMKM.',
@@ -551,7 +557,7 @@ export function downloadRppExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = '
         'Mitra DUDI: CV/PT Mitra Rekanan dan Software House Akuntansi. Peran Ortu: Menjaga kedisiplinan belajar komputer.',
         'Ruang Fisik: Laboratorium Komputer SMK Muhammadiyah Bawang ber-AC dan berstandar K3LH. Ruang Virtual: Google Classroom.',
         'Software Komputer Akuntansi, Aplikasi Spreadsheet Google Sheets / Excel, Cloud Drive',
-        'Mindful Learning: Doa bersama, cek kerapian ruang lab (budaya 5S), penayangan studi kasus perbandingan efisiensi pembukuan manual vs digital, pertanyaan pemantik: "Mengapa dunia industri saat ini beralih total ke software akuntansi?"',
+        '1. Guru membuka pelajaran dengan salam dan doa bersama.\n2. Guru memeriksa kehadiran dan kerapian ruang lab (budaya 5S).\n3. Guru menayangkan studi kasus perbandingan efisiensi pembukuan manual vs digital, lalu mengajukan pertanyaan pemantik: "Mengapa dunia industri saat ini beralih total ke software akuntansi?"\n4. Guru menyampaikan tujuan pembelajaran dan aktivitas yang akan dilakukan.',
         'Meaningful Learning: Murid membuka lembar profil usaha dagang "Batang Sejahtera" dan mengikuti demonstrasi guru dalam membuat data baru perusahaan, menentukan periode akuntansi 13 bulan, serta menyusun struktur akun.',
         'Joyful Learning: Murid secara mandiri dan saling berpasangan (peer-tutoring) menyelesaikan penginputan 35 akun dan menguji saldo awal sampai Historical Balancing menunjukkan angka 0 (seimbang).',
         'Refleksi 3-2-1: 3 menu utama yang dikuasai, 2 kendala saat import akun, 1 trik cepat mencari selisih saldo. Guru memberikan verifikasi dan file cadangan (backup).',
@@ -588,7 +594,7 @@ export function downloadRppExcelTemplate(type: 'kejuruan' | 'umum' | 'blank' = '
     'Kemitraan Industri & Orang Tua',
     'Lingkungan Belajar (Fisik & Virtual)',
     'Pemanfaatan Digital',
-    'Sintaks Pendahuluan (Mindful Learning)',
+    'Kegiatan Awal - Sintaks Pendahuluan (Mindful Learning; satu langkah per baris atau 1. 2. 3.)',
     'Sintaks Inti 1 - Memahami & Eksplorasi (Meaningful Learning)',
     'Sintaks Inti 2 - Mengaplikasi & Merefleksi (Joyful Learning)',
     'Sintaks Penutup (Refleksi 3-2-1 & Kaizen)',
@@ -742,7 +748,7 @@ export function exportRppToExcel(modulList: ModulAjarData[], identity: SchoolIde
     'Kemitraan Industri & Orang Tua',
     'Lingkungan Belajar (Fisik & Virtual)',
     'Pemanfaatan Digital',
-    'Sintaks Pendahuluan (Mindful Learning)',
+    'Kegiatan Awal - Sintaks Pendahuluan (Mindful Learning; satu langkah per baris atau 1. 2. 3.)',
     'Sintaks Inti 1 - Memahami & Eksplorasi (Meaningful Learning)',
     'Sintaks Inti 2 - Mengaplikasi & Merefleksi (Joyful Learning)',
     'Sintaks Penutup (Refleksi 3-2-1 & Kaizen)',
@@ -787,8 +793,8 @@ export function exportRppToExcel(modulList: ModulAjarData[], identity: SchoolIde
       `Mitra: ${desain.kerangkaPembelajaran.kemitraanPembelajaran.mitraIndustri.nama} | Ortu: ${desain.kerangkaPembelajaran.kemitraanPembelajaran.orangTuaWali.peran.join(', ')}`,
       `Fisik: ${desain.kerangkaPembelajaran.lingkunganBelajar.ruangFisik.join(', ')} | Virtual: ${desain.kerangkaPembelajaran.lingkunganBelajar.ruangVirtual.join(', ')}`,
       desain.kerangkaPembelajaran.pemanfaatanDigital.join(', '),
+      langkahToExcelCell(getLangkahKegiatanAwal(peng, m.judulMateri)),
       peng.kegiatanInti.memahamiBermaknaMenggembirakan.instruksiGuru,
-      peng.kegiatanInti.memahamiBermaknaMenggembirakan.rangkumanTemuan.join('; '),
       peng.kegiatanInti.merefleksiBerkesadaranBermakna.instruksiAplikasi,
       `Refleksi 3-2-1: ${peng.kegiatanPenutup.refleksiIndividu321.tigaHalPenting} | ${peng.kegiatanPenutup.kesimpulanDanPenguatan}`,
       ases.ringkasan.asesmenAwal,
