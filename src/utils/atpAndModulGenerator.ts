@@ -6,6 +6,7 @@ import {
   ModulAjarData,
   GeneratedPerangkatAjar,
 } from '../types';
+import { buildLangkahKegiatanAwal, defaultLangkahKegiatanAwal } from './kegiatanAwal';
 
 /**
  * Helper to parse exploration table string from Excel or manual input
@@ -384,6 +385,9 @@ export function generatePerangkatAjarFromRpp(
           },
         },
         pengalamanBelajar: {
+          kegiatanAwal: {
+            langkah: buildLangkahKegiatanAwal(row.sintaksPendahuluan, materi),
+          },
           kegiatanInti: {
             memahamiBermaknaMenggembirakan: {
               instruksiGuru: row.sintaksInti1 ||
@@ -841,6 +845,9 @@ function generateRppForMaterial(
         },
       },
       pengalamanBelajar: {
+        kegiatanAwal: {
+          langkah: defaultLangkahKegiatanAwal(materi),
+        },
         kegiatanInti: {
           memahamiBermaknaMenggembirakan: {
             instruksiGuru: `Guru meminta murid memperhatikan data dan grafik/bagan ${materi} dengan saksama. Guru memulai dengan pertanyaan pemantik: "Apakah yang ingin dijelaskan oleh data dan fenomena ini?" dan meminta murid berdiskusi dalam kelompok secara aktif.`,
