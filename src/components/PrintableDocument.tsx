@@ -1372,11 +1372,11 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                 <colgroup>
                   <col style={{ width: '6%' }} />
                   <col style={{ width: '9%' }} />
-                  <col style={{ width: '14%' }} />
+                  <col style={{ width: '13%' }} />
                   <col style={{ width: '10%' }} />
                   <col style={{ width: '16%' }} />
                   <col style={{ width: '15%' }} />
-                  <col style={{ width: '9%' }} />
+                  <col style={{ width: '10%' }} />
                   <col style={{ width: '5%' }} />
                   <col style={{ width: '16%' }} />
                 </colgroup>
@@ -1388,7 +1388,7 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                     <th className="p-2 border-r border-black">Lingkup Materi</th>
                     <th className="p-2 border-r border-black">Tujuan Pembelajaran (TP)</th>
                     <th className="p-2 border-r border-black">Alur Pembelajaran (ATP)</th>
-                    <th className="p-2 border-r border-black">Profil Pancasila</th>
+                    <th className="p-2 border-r border-black">Dimensi Profil Lulusan</th>
                     <th className="p-2 border-r border-black text-center">JP</th>
                     <th className="p-2">Rencana Asesmen</th>
                   </tr>
