@@ -686,7 +686,7 @@ export function exportAtpToExcel(atpList: AlurTujuanPembelajaranItem[], identity
       'Lingkup Materi',
       'Tujuan Pembelajaran (TP)',
       'Alur Tujuan Pembelajaran (ATP)',
-      'Profil Pelajar Pancasila',
+      'Dimensi Profil Lulusan',
       'Alokasi Waktu (JP)',
       'Rencana Asesmen Formatif & Sumatif',
     ],
