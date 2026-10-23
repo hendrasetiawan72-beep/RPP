@@ -1367,19 +1367,30 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
             </div>
 
             {/* Matriks Tabel ATP - Proposional untuk Kertas Landscape F4 */}
-            <div className="overflow-x-auto border-2 border-black rounded-xl bg-white shadow-[3px_3px_0px_#000]">
-              <table className="w-full text-left text-[11px] border-collapse table-fixed min-w-[950px]">
+            <div className="atp-table-wrap rpp-table-wrap overflow-x-auto border-2 border-black rounded-xl bg-white shadow-[3px_3px_0px_#000]">
+              <table className="atp-table w-full text-left text-[11px] border-collapse table-fixed min-w-[1100px]">
+                <colgroup>
+                  <col style={{ width: '6%' }} />
+                  <col style={{ width: '9%' }} />
+                  <col style={{ width: '14%' }} />
+                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '16%' }} />
+                  <col style={{ width: '15%' }} />
+                  <col style={{ width: '9%' }} />
+                  <col style={{ width: '5%' }} />
+                  <col style={{ width: '16%' }} />
+                </colgroup>
                 <thead>
                   <tr className="bg-amber-200 border-b-2 border-black text-neutral-900 font-black">
-                    <th className="p-2 border-r border-black text-center w-[5%]">Kode</th>
-                    <th className="p-2 border-r border-black w-[11%]">Elemen</th>
-                    <th className="p-2 border-r border-black w-[19%]">Capaian Pembelajaran (CP)</th>
-                    <th className="p-2 border-r border-black w-[11%]">Lingkup Materi</th>
-                    <th className="p-2 border-r border-black w-[19%]">Tujuan Pembelajaran (TP)</th>
-                    <th className="p-2 border-r border-black w-[14%]">Alur Pembelajaran (ATP)</th>
-                    <th className="p-2 border-r border-black w-[8%]">Profil Pancasila</th>
-                    <th className="p-2 border-r border-black w-[5%] text-center">JP</th>
-                    <th className="p-2 w-[8%]">Rencana Asesmen</th>
+                    <th className="p-2 border-r border-black text-center">Kode</th>
+                    <th className="p-2 border-r border-black">Elemen</th>
+                    <th className="p-2 border-r border-black">Capaian Pembelajaran (CP)</th>
+                    <th className="p-2 border-r border-black">Lingkup Materi</th>
+                    <th className="p-2 border-r border-black">Tujuan Pembelajaran (TP)</th>
+                    <th className="p-2 border-r border-black">Alur Pembelajaran (ATP)</th>
+                    <th className="p-2 border-r border-black">Profil Pancasila</th>
+                    <th className="p-2 border-r border-black text-center">JP</th>
+                    <th className="p-2">Rencana Asesmen</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-black/30">
@@ -1404,33 +1415,48 @@ export const PrintableDocument: React.FC<PrintableDocumentProps> = ({
                         <ReadableColumnPoints content={item.alurTujuanPembelajaran} badgeColor="emerald" />
                       </td>
                       <td className="p-2 border-r border-black text-neutral-800 align-top">
-                        <ul className="list-disc pl-3 space-y-0.5">
+                        <ul className="list-disc pl-4 space-y-0.5 break-words">
                           {item.profilPelajarPancasila.map((ppp, pIdx) => (
-                            <li key={pIdx}>{ppp}</li>
+                            <li key={pIdx} className="leading-snug">{ppp}</li>
                           ))}
                         </ul>
                       </td>
                       <td className="p-2 border-r border-black font-mono font-bold text-center align-top text-neutral-900">
                         {item.alokasiWaktuJp} JP
                       </td>
-                      <td className="p-2 text-neutral-700 align-top text-[10px] space-y-1.5">
-                        <div className="flex items-start gap-1">
-                          <span className="font-mono font-bold text-[9px] px-1 py-0.2 rounded bg-neutral-100 text-neutral-900 border border-neutral-400 shrink-0 select-none print:border-black print:bg-neutral-100">
-                            Diag
-                          </span>
-                          <span className="flex-1 leading-tight">{item.asesmenRencana.diagnostik}</span>
-                        </div>
-                        <div className="flex items-start gap-1">
-                          <span className="font-mono font-bold text-[9px] px-1 py-0.2 rounded bg-amber-100 text-amber-950 border border-amber-400 shrink-0 select-none print:border-black print:bg-neutral-100">
-                            Form
-                          </span>
-                          <span className="flex-1 leading-tight">{item.asesmenRencana.formatif}</span>
-                        </div>
-                        <div className="flex items-start gap-1">
-                          <span className="font-mono font-bold text-[9px] px-1 py-0.2 rounded bg-blue-100 text-blue-950 border border-blue-400 shrink-0 select-none print:border-black print:bg-neutral-100">
-                            Sum
-                          </span>
-                          <span className="flex-1 leading-tight">{item.asesmenRencana.sumatif}</span>
+                      <td className="atp-asesmen-cell p-2 text-neutral-800 align-top">
+                        <div className="space-y-2">
+                          {[
+                            {
+                              key: 'diag',
+                              label: 'Diagnostik',
+                              text: item.asesmenRencana.diagnostik,
+                              badge: 'bg-neutral-100 text-neutral-900 border-neutral-400',
+                            },
+                            {
+                              key: 'form',
+                              label: 'Formatif',
+                              text: item.asesmenRencana.formatif,
+                              badge: 'bg-amber-100 text-amber-950 border-amber-400',
+                            },
+                            {
+                              key: 'sum',
+                              label: 'Sumatif',
+                              text: item.asesmenRencana.sumatif,
+                              badge: 'bg-blue-100 text-blue-950 border-blue-400',
+                            },
+                          ].map((a) => (
+                            <div key={a.key} className="atp-asesmen-item">
+                              <span
+                                className={`inline-block font-mono font-bold text-[9px] leading-none uppercase tracking-wide px-1.5 py-[3px] rounded border select-none print:border-black print:bg-neutral-100 print:text-black ${a.badge}`}
+                              >
+                                {a.label}
+                              </span>
+                              <p className="mt-1 text-[10.5px] leading-snug text-neutral-800 break-words">
+                                {a.text || '-'}
+                              </p>
+                            </div>
+                          ))}
                         </div>
                       </td>
                     </tr>
