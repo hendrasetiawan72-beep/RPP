@@ -215,14 +215,16 @@ export function generatePerangkatAjarFromRpp(
     const materi = row.materi || `Materi Pokok Unit ${unitNo}`;
     const jpNum = typeof row.jp === 'number' ? row.jp : parseInt(String(row.jp || '12'), 10) || 12;
 
-    // Profil list
+    // Dimensi Profil Lulusan (8 dimensi): tampil di kolom ATP "Dimensi Profil Lulusan"
     const profilList: string[] = [];
     if (row.profilLulusan) {
+      if (checkProfil(row.profilLulusan, 'iman', 'takwa', 'akhlak')) profilList.push('Keimanan & Ketakwaan');
+      if (checkProfil(row.profilLulusan, 'warga', 'kewargaan')) profilList.push('Kewargaan');
       if (checkProfil(row.profilLulusan, 'kritis', 'nalar')) profilList.push('Bernalar Kritis');
       if (checkProfil(row.profilLulusan, 'kreatif')) profilList.push('Kreativitas');
       if (checkProfil(row.profilLulusan, 'kolaborasi', 'gotong')) profilList.push('Kolaborasi');
       if (checkProfil(row.profilLulusan, 'mandiri')) profilList.push('Kemandirian');
-      if (checkProfil(row.profilLulusan, 'iman', 'takwa', 'akhlak')) profilList.push('Keimanan & Ketakwaan');
+      if (checkProfil(row.profilLulusan, 'sehat')) profilList.push('Kesehatan');
       if (checkProfil(row.profilLulusan, 'komunikasi')) profilList.push('Komunikasi');
     }
     if (profilList.length === 0) {
