@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import {
   DEFAULT_SCHOOL_IDENTITY,
   MAJOR_SAMPLES,
@@ -31,23 +31,136 @@ import { GuidelineModal } from './components/GuidelineModal';
 import { AiRefineModal } from './components/AiRefineModal';
 import { RppTableEditorModal } from './components/RppTableEditorModal';
 import { ExcelGuideAndAiPromptModal } from './components/ExcelGuideAndAiPromptModal';
-import { Check, Layers, Table, FileText, Compass, Code2 } from 'lucide-react';
+import { Check, Layers, Table, FileText, Compass, Code2, Save, RotateCcw } from 'lucide-react';
+import { loadStored, saveStored, clearAllStored, getStoredSizeKb } from './utils/persistence';
+
+type DataMode = 'cp' | 'rpp';
+type DocumentMode = 'atp_only' | 'modul_selected' | 'lampiran_selected' | 'modul_all' | 'both_separate';
+
+const DOCUMENT_MODES: DocumentMode[] = ['atp_only', 'modul_selected', 'lampiran_selected', 'modul_all', 'both_separate'];
+
+/** Bentuk data yang disimpan di browser (lihat utils/persistence.ts). */
+interface StoredRows {
+  rawRows: ExcelRawRow[];
+  rppRows?: ExcelRppRawRow[];
+  mode: DataMode;
+}
+
+interface StoredUi {
+  documentMode: DocumentMode;
+  selectedModulIndex: number;
+  watermarkOpacity: number;
+}
+
+function isPerangkatValid(p: unknown): p is GeneratedPerangkatAjar {
+  const x = p as GeneratedPerangkatAjar | null;
+  return !!x && Array.isArray(x.atpList) && Array.isArray(x.modulAjarList) && x.modulAjarList.length > 0;
+}
+
+/** Data awal bawaan aplikasi (dipakai saat belum ada data tersimpan, atau saat reset). */
+function buildDefaultState() {
+  const defaultRppRows = MAJOR_SAMPLES[0].rppRows;
+  return {
+    identity: DEFAULT_SCHOOL_IDENTITY,
+    rawRows: MAJOR_SAMPLES[0].rows,
+    rppRows: defaultRppRows,
+    mode: (defaultRppRows ? 'rpp' : 'cp') as DataMode,
+    customPerangkat: defaultRppRows
+      ? generatePerangkatAjarFromRpp(defaultRppRows, DEFAULT_SCHOOL_IDENTITY)
+      : null,
+    customModulAjar: null as ModulAjarData | null,
+    documentMode: 'atp_only' as DocumentMode,
+    selectedModulIndex: 0,
+    watermarkOpacity: 0.5,
+  };
+}
+
+/**
+ * Membaca data editan yang tersimpan di browser. Setiap bagian divalidasi; bagian yang rusak
+ * atau tidak ada diganti data awal sehingga aplikasi tidak pernah gagal dibuka karena data lama.
+ */
+function readInitialState() {
+  const fallback = buildDefaultState();
+  try {
+    const storedIdentity = loadStored<SchoolIdentity>('identity');
+    const identity: SchoolIdentity =
+      storedIdentity && typeof storedIdentity === 'object'
+        ? { ...DEFAULT_SCHOOL_IDENTITY, ...storedIdentity }
+        : DEFAULT_SCHOOL_IDENTITY;
+
+    const storedRows = loadStored<StoredRows>('rows');
+    const hasRows = !!storedRows && Array.isArray(storedRows.rawRows);
+
+    const ui = loadStored<StoredUi>('ui');
+    const uiState = {
+      documentMode:
+        ui && DOCUMENT_MODES.includes(ui.documentMode) ? ui.documentMode : fallback.documentMode,
+      selectedModulIndex:
+        ui && Number.isInteger(ui.selectedModulIndex) && ui.selectedModulIndex >= 0
+          ? ui.selectedModulIndex
+          : fallback.selectedModulIndex,
+      watermarkOpacity:
+        ui && typeof ui.watermarkOpacity === 'number' && ui.watermarkOpacity >= 0 && ui.watermarkOpacity <= 1
+          ? ui.watermarkOpacity
+          : fallback.watermarkOpacity,
+    };
+
+    if (!hasRows) {
+      // Belum ada data tabel tersimpan: pakai data awal, tetapi tetap hormati identitas & tampilan tersimpan
+      return {
+        ...fallback,
+        identity,
+        customPerangkat: fallback.rppRows
+          ? generatePerangkatAjarFromRpp(fallback.rppRows, identity)
+          : null,
+        ...uiState,
+      };
+    }
+
+    const rppRows =
+      Array.isArray(storedRows.rppRows) && storedRows.rppRows.length > 0 ? storedRows.rppRows : undefined;
+    const mode: DataMode = storedRows.mode === 'cp' || !rppRows ? 'cp' : 'rpp';
+
+    let customPerangkat: GeneratedPerangkatAjar | null = null;
+    const storedPerangkat = loadStored<GeneratedPerangkatAjar>('perangkat');
+    if (isPerangkatValid(storedPerangkat)) {
+      customPerangkat = storedPerangkat;
+    } else if (mode === 'rpp' && rppRows) {
+      // Hasil editan tidak tersedia: susun ulang dari tabel RPP yang tersimpan
+      customPerangkat = generatePerangkatAjarFromRpp(rppRows, identity);
+    }
+
+    const storedModul = loadStored<ModulAjarData>('modul');
+    const customModulAjar =
+      storedModul && typeof storedModul === 'object' && customPerangkat ? storedModul : null;
+
+    return {
+      identity,
+      rawRows: storedRows.rawRows,
+      rppRows,
+      mode,
+      customPerangkat,
+      customModulAjar,
+      ...uiState,
+    };
+  } catch {
+    return fallback;
+  }
+}
 
 export default function App() {
-  const [identity, setIdentity] = useState<SchoolIdentity>(DEFAULT_SCHOOL_IDENTITY);
-  const [rawRows, setRawRows] = useState<ExcelRawRow[]>(MAJOR_SAMPLES[0].rows);
-  const [rppRows, setRppRows] = useState<ExcelRppRawRow[] | undefined>(MAJOR_SAMPLES[0].rppRows);
-  const [currentDataMode, setCurrentDataMode] = useState<'cp' | 'rpp'>('rpp');
+  // Data awal dibaca sekali dari penyimpanan browser (localStorage), sehingga hasil editan tetap ada setelah refresh
+  const [initial] = useState(readInitialState);
+
+  const [identity, setIdentity] = useState<SchoolIdentity>(initial.identity);
+  const [rawRows, setRawRows] = useState<ExcelRawRow[]>(initial.rawRows);
+  const [rppRows, setRppRows] = useState<ExcelRppRawRow[] | undefined>(initial.rppRows);
+  const [currentDataMode, setCurrentDataMode] = useState<DataMode>(initial.mode);
   
   // Custom generated package when RPP format or specific edits are loaded
-  const [customPerangkat, setCustomPerangkat] = useState<GeneratedPerangkatAjar | null>(() => {
-    if (MAJOR_SAMPLES[0].rppRows) {
-      return generatePerangkatAjarFromRpp(MAJOR_SAMPLES[0].rppRows, DEFAULT_SCHOOL_IDENTITY);
-    }
-    return null;
-  });
+  const [customPerangkat, setCustomPerangkat] = useState<GeneratedPerangkatAjar | null>(initial.customPerangkat);
 
-  const [customModulAjar, setCustomModulAjar] = useState<ModulAjarData | null>(null);
+  const [customModulAjar, setCustomModulAjar] = useState<ModulAjarData | null>(initial.customModulAjar);
 
   // Document separation modes:
   // - 'atp_only': Dokumen ATP saja (terpisah)
@@ -55,9 +168,9 @@ export default function App() {
   // - 'lampiran_selected': Dokumen Lampiran & LKPD terpilih
   // - 'modul_all': Semua Modul Ajar terpisah berurutan
   // - 'both_separate': Keduanya dengan pemisah halaman
-  const [documentMode, setDocumentMode] = useState<'atp_only' | 'modul_selected' | 'lampiran_selected' | 'modul_all' | 'both_separate'>('atp_only');
-  const [selectedModulIndex, setSelectedModulIndex] = useState<number>(0);
-  const [watermarkOpacity, setWatermarkOpacity] = useState<number>(0.5);
+  const [documentMode, setDocumentMode] = useState<DocumentMode>(initial.documentMode);
+  const [selectedModulIndex, setSelectedModulIndex] = useState<number>(initial.selectedModulIndex);
+  const [watermarkOpacity, setWatermarkOpacity] = useState<number>(initial.watermarkOpacity);
 
   const [isIdentityModalOpen, setIsIdentityModalOpen] = useState(false);
   const [isGuidelineModalOpen, setIsGuidelineModalOpen] = useState(false);
@@ -70,6 +183,128 @@ export default function App() {
   const showNotification = (msg: string) => {
     setNotification(msg);
     setTimeout(() => setNotification(null), 4000);
+  };
+
+  // ---------------------------------------------------------------------------
+  // Penyimpanan otomatis ke browser (localStorage)
+  // ---------------------------------------------------------------------------
+  const [storageStatus, setStorageStatus] = useState<'ok' | 'quota' | 'unavailable' | 'error'>('ok');
+  const [savedKb, setSavedKb] = useState<number>(() => getStoredSizeKb());
+  const storageWarnedRef = useRef(false);
+
+  // Selalu menunjuk ke kondisi data terbaru, agar penyimpanan saat menutup/refresh halaman tidak memakai data lama
+  const snapshotRef = useRef({
+    identity,
+    rawRows,
+    rppRows,
+    currentDataMode,
+    customPerangkat,
+    customModulAjar,
+    documentMode,
+    selectedModulIndex,
+    watermarkOpacity,
+  });
+  snapshotRef.current = {
+    identity,
+    rawRows,
+    rppRows,
+    currentDataMode,
+    customPerangkat,
+    customModulAjar,
+    documentMode,
+    selectedModulIndex,
+    watermarkOpacity,
+  };
+
+  const persistNow = useCallback(() => {
+    const snap = snapshotRef.current;
+    const results = [
+      saveStored('identity', snap.identity),
+      saveStored<StoredRows>('rows', {
+        rawRows: snap.rawRows,
+        rppRows: snap.rppRows,
+        mode: snap.currentDataMode,
+      }),
+      saveStored('perangkat', snap.customPerangkat),
+      saveStored('modul', snap.customModulAjar),
+      saveStored<StoredUi>('ui', {
+        documentMode: snap.documentMode,
+        selectedModulIndex: snap.selectedModulIndex,
+        watermarkOpacity: snap.watermarkOpacity,
+      }),
+    ];
+
+    const failure = results.find((r) => !r.ok);
+    if (failure && !failure.ok) {
+      setStorageStatus(failure.reason);
+      if (!storageWarnedRef.current) {
+        storageWarnedRef.current = true;
+        showNotification(
+          failure.reason === 'quota'
+            ? '⚠️ Data terlalu besar untuk disimpan otomatis di browser. Gunakan Ekspor Excel agar hasil editan tidak hilang.'
+            : failure.reason === 'unavailable'
+              ? '⚠️ Penyimpanan browser tidak tersedia (mode privat atau diblokir). Hasil editan akan hilang saat refresh, gunakan Ekspor Excel.'
+              : '⚠️ Gagal menyimpan otomatis di browser. Gunakan Ekspor Excel agar hasil editan tidak hilang.'
+        );
+      }
+    } else {
+      storageWarnedRef.current = false;
+      setStorageStatus('ok');
+      setSavedKb(getStoredSizeKb());
+    }
+  }, []);
+
+  // Simpan setiap ada perubahan data (ditunda sebentar agar tidak menulis berulang saat mengetik/menggeser slider)
+  useEffect(() => {
+    const timer = window.setTimeout(persistNow, 500);
+    return () => window.clearTimeout(timer);
+  }, [
+    identity,
+    rawRows,
+    rppRows,
+    currentDataMode,
+    customPerangkat,
+    customModulAjar,
+    documentMode,
+    selectedModulIndex,
+    watermarkOpacity,
+    persistNow,
+  ]);
+
+  // Simpan seketika saat halaman di-refresh, ditutup, atau tab disembunyikan, supaya perubahan terakhir tidak hilang
+  useEffect(() => {
+    const flush = () => persistNow();
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') persistNow();
+    };
+    window.addEventListener('pagehide', flush);
+    window.addEventListener('beforeunload', flush);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      window.removeEventListener('beforeunload', flush);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [persistNow]);
+
+  // Hapus data tersimpan dan kembali ke data awal aplikasi
+  const handleResetStoredData = () => {
+    const confirmed = window.confirm(
+      'Hapus semua hasil editan yang tersimpan di browser dan kembali ke data awal?\n\nTindakan ini tidak dapat dibatalkan. Ekspor ke Excel terlebih dahulu jika data masih diperlukan.'
+    );
+    if (!confirmed) return;
+    clearAllStored();
+    const fresh = buildDefaultState();
+    setIdentity(fresh.identity);
+    setRawRows(fresh.rawRows);
+    setRppRows(fresh.rppRows);
+    setCurrentDataMode(fresh.mode);
+    setCustomPerangkat(fresh.customPerangkat);
+    setCustomModulAjar(fresh.customModulAjar);
+    setDocumentMode(fresh.documentMode);
+    setSelectedModulIndex(fresh.selectedModulIndex);
+    setWatermarkOpacity(fresh.watermarkOpacity);
+    showNotification('Data tersimpan dihapus. Aplikasi kembali ke data awal.');
   };
 
   // Base generation from rows & identity
@@ -278,6 +513,33 @@ export default function App() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2 self-end md:self-auto">
+            <span
+              className={`px-2.5 py-1.5 border-2 border-black rounded-lg text-[11px] font-bold flex items-center gap-1.5 ${
+                storageStatus === 'ok' ? 'bg-emerald-200 text-black' : 'bg-red-200 text-black'
+              }`}
+              title={
+                storageStatus === 'ok'
+                  ? 'Hasil editan disimpan otomatis di browser ini dan tetap ada setelah refresh.'
+                  : 'Penyimpanan otomatis di browser bermasalah. Gunakan Ekspor Excel untuk mengamankan data.'
+              }
+            >
+              <Save className="w-3.5 h-3.5" />
+              <span>
+                {storageStatus === 'ok'
+                  ? `Tersimpan otomatis di browser · ${savedKb} KB`
+                  : 'Penyimpanan browser bermasalah'}
+              </span>
+            </span>
+
+            <button
+              onClick={handleResetStoredData}
+              className="neo-btn px-3 py-1.5 bg-white hover:bg-red-50 text-black text-xs font-bold rounded-lg flex items-center gap-1.5"
+              title="Hapus data tersimpan dan kembali ke data awal"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-red-700" />
+              <span>Reset Data</span>
+            </button>
+
             <button
               onClick={() => {
                 setDocumentMode('atp_only');
